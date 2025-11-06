@@ -1,0 +1,77 @@
+@model JconsultGC.Models.Courrier
+
+@{
+    ViewData["Title"] = "Détails du courrier";
+    var histories = ViewBag.Histories as IEnumerable<JconsultGC.Models.CourrierHistory> ?? Enumerable.Empty<JconsultGC.Models.CourrierHistory>();
+}
+
+<div class="container mt-4">
+    <h2>Détails du courrier</h2>
+
+    <dl class="row">
+        <dt class="col-sm-3">Référence</dt>
+        <dd class="col-sm-9">@Model.ReferenceNumero</dd>
+
+        <dt class="col-sm-3">Objet</dt>
+        <dd class="col-sm-9">@Model.Objet</dd>
+
+        <dt class="col-sm-3">Catégorie</dt>
+        <dd class="col-sm-9">@Model.CategorieCourrier?.Nom</dd>
+
+        <dt class="col-sm-3">Mode d'envoi</dt>
+        <dd class="col-sm-9">@Model.ModeEnvoi?.Nom</dd>
+
+        <dt class="col-sm-3">Confidentialité</dt>
+        <dd class="col-sm-9">@Model.Confidentialite</dd>
+
+        <dt class="col-sm-3">Priorité</dt>
+        <dd class="col-sm-9">@Model.Priorite</dd>
+
+        <dt class="col-sm-3">Statut</dt>
+        <dd class="col-sm-9">@Model.Statut</dd>
+    </dl>
+
+    <h4>Pièces jointes</h4>
+    <ul>
+        @foreach (var doc in Model.Documents ?? Enumerable.Empty<JconsultGC.Models.Document>())
+        {
+            <li>
+                <a asp-action="OpenDocument" asp-route-id="@doc.Id" target="_blank">@doc.FileName</a>
+            </li>
+        }
+    </ul>
+
+    <h4>Historique</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Action</th>
+                <th>Utilisateur</th>
+                <th>Note</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var h in histories)
+            {
+                <tr>
+                    <td>@h.Action</td>
+                    <td>@h.UserId</td>
+                    <td>@h.Note</td>
+                    <td>@h.Timestamp.ToString("yyyy-MM-dd HH:mm")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="mt-3">
+        @if (Model.Statut != "A valider")
+        {
+            <form asp-action="MarkReady" method="post">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button type="submit" class="btn btn-primary">Marquer prêt pour validation</button>
+            </form>
+        }
+        <a asp-action="Index" class="btn btn-secondary">Retour</a>
+    </div>
+</div>

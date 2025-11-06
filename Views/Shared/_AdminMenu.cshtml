@@ -1,0 +1,10 @@
+@if (User.IsInRole("Admin"))
+{
+    <nav class="nav flex-column">
+        <a class="nav-link" asp-controller="Users" asp-action="Index">Gestion des utilisateurs</a>
+        <a class="nav-link" asp-controller="Roles" asp-action="Index">Gestion des rôles</a>
+        <a class="nav-link" asp-controller="Services" asp-action="Index">Gestion des services</a>
+        <a class="nav-link" asp-controller="Parameters" asp-action="Index">Paramètres système</a>
+        <a class="nav-link" asp-controller="Reports" asp-action="Index">Rapports globaux</a>
+    </nav>
+}

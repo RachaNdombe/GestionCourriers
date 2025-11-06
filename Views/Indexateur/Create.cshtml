@@ -1,0 +1,387 @@
+@model JconsultGC.Models.CourrierCreateViewModel
+
+@{
+    ViewData["Title"] = "Saisir un courrier";
+}
+
+<div class="container mt-4">
+    <h2>Saisir un courrier entrant</h2>
+
+    <form asp-action="Create" method="post" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="OrdreNumero"></label>
+                    <input asp-for="OrdreNumero" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="RegistreNumero"></label>
+                    <input asp-for="RegistreNumero" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ReferenceNumero"></label>
+                    <input asp-for="ReferenceNumero" class="form-control" placeholder="RF-06-06" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Objet">Objet</label>
+                    <input asp-for="Objet" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="DateReception"></label>
+                    <input asp-for="DateReception" class="form-control" type="date" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="HeureRecu"></label>
+                    <input asp-for="HeureRecu" class="form-control" type="time" />
+                </div>
+
+                <div class="form-group">
+                    <label>Catégorie</label>
+                    <select asp-for="CategorieCourrierId" class="form-control" asp-items="ViewBag.Categories">
+                        <option value=""></option>
+                    </select>
+                    <small class="form-text text-muted">Si la catégorie n'existe pas, ajoutez-en une ci-dessous</small>
+                    <input asp-for="NewCategorie" class="form-control mt-2" placeholder="Nouvelle catégorie (optionnel)" />
+                </div>
+
+                <div class="form-group">
+                    <label>Mode d'envoi</label>
+                    <select asp-for="ModeEnvoiId" class="form-control" asp-items="ViewBag.Modes">
+                        <option value="Postal">Postal</option>
+                        <option value="Mail">Mail</option>
+                        <option value="Messagerie">Messagerie</option>
+                        <option value="Interne">Interne</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Confidentialité</label>
+                    <select asp-for="Confidentialite" class="form-control">
+                        <option value="0">Public</option>
+                        <option value="1">Interne</option>
+                        <option value="2">Confidentiel</option>
+                        <option value="3">Très confidentiel</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Priorité</label>
+                    <select asp-for="Priorite" class="form-control">
+                        <option value="0">Basse</option>
+                        <option value="1">Normal</option>
+                        <option value="2">Haute</option>
+                        <option value="3">Urgent</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Nature"></label>
+                    <input asp-for="Nature" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="TypeDossierId"></label>
+                    <select asp-for="TypeDossierId" class="form-control" asp-items="ViewBag.TypeDossiers">
+                        <option value=""></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="DossierDeClassement"></label>
+                    <input asp-for="DossierDeClassement" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ServiceConcerne"></label>
+                    <input asp-for="ServiceConcerne" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="UtilisateursEnCopie"></label>
+                    <input asp-for="UtilisateursEnCopie" class="form-control" />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>Expéditeur</label>
+                    <div class="d-flex gap-2 align-items-center">
+                        <select asp-for="CorrespondantId" class="form-control" asp-items="ViewBag.Correspondants">
+                            <option value=""></option>
+                        </select>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newCorrespondantModal">
+                            <i class="bi bi-plus-circle"></i> Nouveau
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Service destinataire</label>
+                    <select asp-for="ServiceId" class="form-control" asp-items="ViewBag.Services">
+                        <option value="">-- Sélectionner --</option>
+                    </select>
+                </div>
+
+<!-- Modal Nouveau Correspondant -->
+<div class="modal fade" id="newCorrespondantModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nouvel expéditeur</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newCorrespondantForm">
+                    <div class="mb-3">
+                        <label class="form-label">Type d'expéditeur</label>
+                        <select class="form-control" id="raisonSociale" name="raisonSociale">
+                            <option value="Personne">Personne</option>
+                            <option value="Organisation">Organisation</option>
+                        </select>
+                    </div>
+
+                    <!-- Champs pour Personne -->
+                    <div id="personneFields">
+                        <div class="mb-3">
+                            <label class="form-label">Civilité</label>
+                            <select class="form-control" name="civilite">
+                                <option value="M.">Monsieur</option>
+                                <option value="Mme">Madame</option>
+                                <option value="Mlle">Mademoiselle</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nom et Prénom *</label>
+                            <input type="text" class="form-control" name="nom" required maxlength="100" />
+                        </div>
+                    </div>
+
+                    <!-- Champs pour Organisation -->
+                    <div id="organisationFields" style="display:none;">
+                        <div class="mb-3">
+                            <label class="form-label">Nom de l'organisation *</label>
+                            <input type="text" class="form-control" name="nomOrg" required maxlength="100" />
+                        </div>
+                    </div>
+
+                    <!-- Champs communs -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" name="email" maxlength="100" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Téléphone</label>
+                                <input type="tel" class="form-control" name="contact1" maxlength="20" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Adresse</label>
+                                <input type="text" class="form-control" name="adresse" maxlength="200" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Ville</label>
+                                <input type="text" class="form-control" name="ville" maxlength="50" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Code Postal</label>
+                                <input type="text" class="form-control" name="codePostal" maxlength="10" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Pays</label>
+                        <input type="text" class="form-control" name="pays" maxlength="50" value="Congo" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" id="saveCorrespondant">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+                <div class="form-group">
+                    <label>Pièces jointes</label>
+                    <input type="file" name="Attachments" multiple class="form-control" id="fileInput" />
+                    <small class="form-text text-muted">Vous pouvez scanner le dossier puis sélectionner les fichiers ici.</small>
+                    <div class="mt-2">
+                        <button type="button" class="btn btn-secondary" id="btnScan">Scanner le dossier</button>
+                        <button type="button" class="btn btn-secondary" id="btnSelect">Sélectionner le dossier</button>
+                    </div>
+
+                    <div class="mt-3">
+                        <h6>Aperçu des pièces jointes</h6>
+                        <div id="previewArea">Aucun fichier sélectionné.</div>
+                    </div>
+
+                    <div class="form-check mt-3">
+                        <input asp-for="VisualizedBeforeSave" class="form-check-input" type="checkbox" id="visualizedCheckbox" />
+                        <label class="form-check-label" for="visualizedCheckbox">J'ai visualisé toutes les pièces jointes</label>
+                        <small class="form-text text-muted">Vous devez visualiser les fichiers avant de pouvoir enregistrer.</small>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary" id="submitBtn" disabled>Enregistrer</button>
+            <a asp-action="Index" class="btn btn-secondary">Retour</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // Gestion du formulaire d'expéditeur
+        document.getElementById('raisonSociale').addEventListener('change', function() {
+            const isPersonne = this.value === 'Personne';
+            document.getElementById('personneFields').style.display = isPersonne ? 'block' : 'none';
+            document.getElementById('organisationFields').style.display = isPersonne ? 'none' : 'block';
+
+            // Reset required fields
+            document.querySelector('[name="nom"]').required = isPersonne;
+            document.querySelector('[name="nomOrg"]').required = !isPersonne;
+        });
+
+        document.getElementById('saveCorrespondant').addEventListener('click', function() {
+            const form = document.getElementById('newCorrespondantForm');
+            const formData = new FormData(form);
+            const data = {
+                raisonSociale: formData.get('raisonSociale'),
+                nom: formData.get(formData.get('raisonSociale') === 'Personne' ? 'nom' : 'nomOrg'),
+                civilite: formData.get('civilite'),
+                email: formData.get('email'),
+                contact1: formData.get('contact1'),
+                adresse: formData.get('adresse'),
+                ville: formData.get('ville'),
+                codePostal: formData.get('codePostal'),
+                pays: formData.get('pays')
+            };
+
+            fetch('/Correspondants/CreateAjax', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Ajouter le nouveau correspondant à la liste
+                    const select = document.getElementById('CorrespondantId');
+                    const option = new Option(data.nom, result.id);
+                    select.add(option);
+                    select.value = result.id;
+                    
+                    // Fermer le modal et réinitialiser le formulaire
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('newCorrespondantModal'));
+                    modal.hide();
+                    form.reset();
+
+                    // Notification
+                    alert('Expéditeur créé avec succès');
+                } else {
+                    alert('Erreur: ' + (result.errors ? result.errors.join('\n') : result.message));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Erreur lors de la création de l\'expéditeur');
+            });
+        });
+
+        // Focus the file input when user clicks the Select button
+        document.getElementById('btnSelect').addEventListener('click', function () {
+            document.querySelector('input[type=file][name=Attachments]').click();
+        });
+
+        document.getElementById('btnScan').addEventListener('click', function () {
+            alert('Fonction de scan non-implémentée dans le navigateur. Connectez un scanner ou utilisez l\'application mobile pour scanner et uploader les fichiers.');
+        });
+
+        const fileInput = document.getElementById('fileInput');
+        const previewArea = document.getElementById('previewArea');
+        const visualizedCheckbox = document.getElementById('visualizedCheckbox');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // When files are selected, show previews and reset visualized checkbox
+        fileInput.addEventListener('change', function (e) {
+            const files = Array.from(fileInput.files || []);
+            if (files.length === 0) {
+                previewArea.innerHTML = 'Aucun fichier sélectionné.';
+                visualizedCheckbox.checked = false;
+                submitBtn.disabled = true;
+                return;
+            }
+
+            previewArea.innerHTML = '';
+
+            files.forEach(file => {
+                const fileDiv = document.createElement('div');
+                fileDiv.className = 'mb-2';
+
+                const title = document.createElement('div');
+                title.textContent = file.name + ' (' + Math.round(file.size / 1024) + ' KB)';
+                fileDiv.appendChild(title);
+
+                // Preview common types
+                if (file.type.startsWith('image/')) {
+                    const img = document.createElement('img');
+                    img.style.maxWidth = '100%';
+                    img.style.maxHeight = '300px';
+                    img.className = 'img-thumbnail';
+                    const reader = new FileReader();
+                    reader.onload = function (ev) { img.src = ev.target.result; };
+                    reader.readAsDataURL(file);
+                    fileDiv.appendChild(img);
+                } else if (file.type === 'application/pdf') {
+                    const url = URL.createObjectURL(file);
+                    const embed = document.createElement('embed');
+                    embed.src = url;
+                    embed.type = 'application/pdf';
+                    embed.style.width = '100%';
+                    embed.style.height = '400px';
+                    fileDiv.appendChild(embed);
+                } else {
+                    const p = document.createElement('div');
+                    p.textContent = 'Aucun aperçu disponible pour ce type de fichier.';
+                    fileDiv.appendChild(p);
+                }
+
+                previewArea.appendChild(fileDiv);
+            });
+
+            // Reset confirmation; user must re-check after viewing
+            visualizedCheckbox.checked = false;
+            submitBtn.disabled = true;
+        });
+
+        // Enable submit only when checkbox checked (so user confirms viewing)
+        visualizedCheckbox.addEventListener('change', function () {
+            submitBtn.disabled = !visualizedCheckbox.checked;
+        });
+    </script>
+}

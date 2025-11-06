@@ -1,0 +1,120 @@
+@model JConsultGED.Web.ViewModels.CorrespondantViewModel
+
+<form id="correspondantForm" asp-action="Create" asp-controller="Correspondant" method="post" class="needs-validation" novalidate>
+    <div class="modal-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Nom" class="form-label">Nom</label>
+                <input asp-for="Nom" class="form-control" required />
+                <div class="invalid-feedback">
+                    Veuillez saisir le nom
+                </div>
+                <span asp-validation-for="Nom" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Societe" class="form-label">Société</label>
+                <input asp-for="Societe" class="form-control" required />
+                <div class="invalid-feedback">
+                    Veuillez saisir la société
+                </div>
+                <span asp-validation-for="Societe" class="text-danger"></span>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="Adresse" class="form-label">Adresse</label>
+                <textarea asp-for="Adresse" class="form-control" rows="2"></textarea>
+                <span asp-validation-for="Adresse" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Telephone" class="form-label">Téléphone</label>
+                <input asp-for="Telephone" class="form-control phone-mask" />
+                <span asp-validation-for="Telephone" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Email" class="form-label">Email</label>
+                <input asp-for="Email" type="email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+        <button type="submit" class="btn btn-primary" id="btnSaveCorrespondant">
+            <i class="fas fa-save me-1"></i> Enregistrer
+        </button>
+    </div>
+</form>
+
+<script>
+document.getElementById('correspondantForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    if (!this.checkValidity()) {
+        e.stopPropagation();
+        this.classList.add('was-validated');
+        return;
+    }
+
+    var formData = new FormData(this);
+    
+    fetch(this.action, {
+        method: 'POST',
+        body: new URLSearchParams(formData),
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Ajout du nouveau correspondant à la liste déroulante
+            var select = document.getElementById('CorrespondantId');
+            var option = new Option(data.nom, data.id, false, true);
+            select.appendChild(option);
+            
+            // Fermer le modal
+            var modal = bootstrap.Modal.getInstance(document.getElementById('correspondantModal'));
+            modal.hide();
+            
+            // Message de succès
+            Swal.fire({
+                icon: 'success',
+                title: 'Succès !',
+                text: 'Expéditeur enregistré avec succès',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            
+            // Réinitialiser le formulaire
+            this.reset();
+            this.classList.remove('was-validated');
+        } else {
+            // Afficher les erreurs
+            Swal.fire({
+                icon: 'error',
+                title: 'Erreur',
+                text: data.message || 'Une erreur est survenue',
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Erreur',
+            text: 'Une erreur est survenue lors de l\'enregistrement',
+        });
+    });
+});
+
+// Initialisation du masque téléphone
+var phoneMaskElements = document.querySelectorAll('.phone-mask');
+phoneMaskElements.forEach(function(element) {
+    IMask(element, {
+        mask: '+{237} 000-000-000'
+    });
+});
+</script>

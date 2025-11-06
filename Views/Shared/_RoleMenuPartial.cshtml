@@ -1,0 +1,41 @@
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+    var role = user?.Role.ToString() ?? "";
+}
+
+<div class="role-specific-menu">
+    @switch (role)
+    {
+        case "Admin":
+            <partial name="_AdminMenu" />
+            break;
+        case "Stat":
+            <partial name="_StatMenu" />
+            break;
+        case "Classement":
+            <partial name="_ClassementMenu" />
+            break;
+        case "Indexateur":
+            <partial name="_IndexateurMenu" />
+            break;
+        case "ServiceExp":
+            <partial name="_ServiceExpMenu" />
+            break;
+        case "Archiviste":
+            <partial name="_ArchivisteMenu" />
+            break;
+        case "Viseur":
+            <partial name="_ViseurMenu" />
+            break;
+        case "Signataire":
+            <partial name="_SignataireMenu" />
+            break;
+        default:
+            <p>Menu non disponible</p>
+            break;
+    }
+</div>

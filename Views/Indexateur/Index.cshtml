@@ -1,0 +1,61 @@
+@model IEnumerable<JconsultGC.Models.Courrier>
+
+@{
+    ViewData["Title"] = "Courriers reçus";
+}
+
+<div class="container mt-4">
+    <h2>Courriers reçus</h2>
+
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Nouveau Courrier</a>
+    </p>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>N° d'ordre</th>
+                <th>N° de registre</th>
+                <th>Référence</th>
+                <th>Date reçu</th>
+                <th>Heure reçu</th>
+                <th>Objet</th>
+                <th>Confidentialité</th>
+                <th>Priorité</th>
+                <th>Catégorie</th>
+                <th>Nature</th>
+                <th>Expéditeur</th>
+                <th>Service concerné</th>
+                <th>Mode d'envoi</th>
+                <th>Dossier de classement</th>
+                <th>Utilisateurs en copie</th>
+                <th>Pièces jointes</th>
+                
+                
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in Model)
+            {
+                <tr>
+                    <td>@c.OrdreNumero</td>
+                    <td>@c.RegistreNumero</td>
+                    <td>@c.ReferenceNumero</td>
+                    <td>@c.DateReception?.ToString("yyyy-MM-dd")</td>
+                    <td>@c.HeureRecu?.ToString(@"hh\:mm")</td>
+                    <td>@c.Objet</td>
+                    <td>@c.Confidentialite</td>
+                    <td>@c.Priorite</td>
+                    <td>@c.CategorieCourrier?.Nom</td>
+                    <td>@c.Nature</td>
+                    <td>@c.Correspondant?.Nom</td>
+                    <td>@c.ServiceConcerne</td>
+                    <td>@c.ModeEnvoi?.Nom</td>
+                    <td>@c.DossierDeClassement</td>
+                    <td>@c.UtilisateursEnCopie</td>
+                    <td>@(c.Documents?.Any() == true ? c.Documents.Count.ToString() + " fichier(s)" : "Aucun")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

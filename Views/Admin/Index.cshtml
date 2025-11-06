@@ -1,0 +1,29 @@
+@{
+    ViewData["Title"] = "Administration";
+}
+
+<div class="container mt-4">
+    <h2>Tableau de Bord Administration</h2>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Gestion des Utilisateurs</h5>
+                    <p class="card-text">Gérer les utilisateurs du système</p>
+                    <a asp-action="Users" class="btn btn-primary">Gérer les Utilisateurs</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Gestion des Services</h5>
+                    <p class="card-text">Gérer les services de l'organisation</p>
+                    <a asp-action="Services" class="btn btn-primary">Gérer les Services</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

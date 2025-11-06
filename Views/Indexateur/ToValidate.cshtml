@@ -1,0 +1,39 @@
+@model IEnumerable<JconsultGC.Models.Courrier>
+
+@{
+    ViewData["Title"] = "Courriers à valider";
+}
+
+<div class="container mt-4">
+    <h2>Courriers à valider</h2>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Réf</th>
+                <th>Objet</th>
+                <th>Catégorie</th>
+                <th>Confidentialité</th>
+                <th>Priorité</th>
+                <th>Date enregistrement</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in Model)
+            {
+                <tr>
+                    <td>@c.ReferenceNumero</td>
+                    <td>@c.Objet</td>
+                    <td>@c.CategorieCourrier?.Nom</td>
+                    <td>@c.Confidentialite</td>
+                    <td>@c.Priorite</td>
+                    <td>@c.DateEnregistrement.ToString("yyyy-MM-dd")</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@c.Id" class="btn btn-sm btn-info">Voir</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
