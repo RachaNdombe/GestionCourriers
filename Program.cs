@@ -166,5 +166,9 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+// Map specific controller routes
+app.MapControllerRoute(
+    name: "correspondants",
+    pattern: "Correspondants/{action=Index}/{id?}");
 
 app.Run();

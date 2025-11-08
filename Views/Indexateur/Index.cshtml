@@ -47,11 +47,11 @@
                     <td>@c.Confidentialite</td>
                     <td>@c.Priorite</td>
                     <td>@c.CategorieCourrier?.Nom</td>
-                    <td>@c.Nature</td>
+                    <td>@c.NatureCourrier?.Nom</td>
                     <td>@c.Correspondant?.Nom</td>
                     <td>@c.ServiceConcerne</td>
-                    <td>@c.ModeEnvoi?.Nom</td>
-                    <td>@c.DossierDeClassement</td>
+                    <td>@c.ModeEnvoi?.Description</td>
+                    <td>@c.DossierClassement?.Titre</td>
                     <td>@c.UtilisateursEnCopie</td>
                     <td>@(c.Documents?.Any() == true ? c.Documents.Count.ToString() + " fichier(s)" : "Aucun")</td>
                 </tr>

@@ -31,13 +31,15 @@ public class Courrier
     public DateTime? DateSortie { get; set; }
 
     [Display(Name = "Nature")]
-    public string? Nature { get; set; }
+    public int? NatureCourrierId { get; set; }
+    public virtual NatureCourrier? NatureCourrier { get; set; }
 
     [Display(Name = "Service concerné")]
     public string? ServiceConcerne { get; set; }
 
     [Display(Name = "Dossier de classement")]
-    public string? DossierDeClassement { get; set; }
+    public int? DossierClassementId { get; set; }
+    public virtual DossierClassement? DossierClassement { get; set; }
 
     [Display(Name = "Utilisateurs en copie")]
     public string? UtilisateursEnCopie { get; set; }

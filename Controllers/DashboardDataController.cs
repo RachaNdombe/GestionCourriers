@@ -41,7 +41,8 @@ public class DashboardDataController : ControllerBase
 
         model.RecentCourriers = courriers
             .OrderByDescending(c => c.DateEnregistrement)
-            .Take(5);
+            .Take(5)
+            .ToList();
 
         // Get courriers waiting for validation
         model.CourriersAValider = await _context.Courriers

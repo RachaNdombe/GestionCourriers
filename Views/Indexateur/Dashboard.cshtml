@@ -37,7 +37,7 @@
             <div class="card bg-success text-white">
                 <div class="card-body">
                     <h5 class="card-title">Actions aujourd'hui</h5>
-                    <p class="card-text display-4">@Model.RecentActions.Count()</p>
+                    <p class="card-text display-4">@Model.ActionsAujourdhui</p>
                 </div>
             </div>
         </div>
@@ -52,15 +52,24 @@
                 </div>
                 <div class="card-body">
                     <div class="list-group">
-                        @foreach (var action in Model.RecentActions)
+                        @if (Model.RecentActions != null && Model.RecentActions.Any())
                         {
-                            <a href="@Url.Action("Details", new { id = action.CourrierId })" class="list-group-item list-group-item-action">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-1">@action.Action</h6>
-                                    <small>@action.Timestamp.ToString("dd/MM/yyyy HH:mm")</small>
-                                </div>
-                                <p class="mb-1">@action.Note</p>
-                            </a>
+                            @foreach (var action in Model.RecentActions)
+                            {
+                                <a href="@Url.Action("Details", "CourriersEntrant", new { id = action.CourrierId })" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">@action.Action</h6>
+                                        <small>@action.Timestamp.ToString("dd/MM/yyyy HH:mm")</small>
+                                    </div>
+                                    <p class="mb-1">@action.Note</p>
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            <div class="list-group-item text-center text-muted">
+                                Aucune action aujourd'hui
+                            </div>
                         }
                     </div>
                 </div>
@@ -75,61 +84,24 @@
                 </div>
                 <div class="card-body">
                     <div class="list-group">
-                        @foreach (var courrier in Model.CourriersAValider)
+                        @if (Model.CourriersAValider != null && Model.CourriersAValider.Any())
                         {
-                            <a href="@Url.Action("Details", new { id = courrier.Id })" class="list-group-item list-group-item-action">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-1">@courrier.ReferenceNumero</h6>
-                                    <small>@courrier.DateEnregistrement.ToString("dd/MM/yyyy")</small>
-                                </div>
-                                <p class="mb-1">@courrier.Objet</p>
-                                <small>@courrier.CategorieCourrier?.Nom - @courrier.Priorite</small>
-                            </a>
+                            @foreach (var courrier in Model.CourriersAValider)
+                            {
+                                <a href="@Url.Action("Details", "CourriersEntrant", new { id = courrier.Id })" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">@courrier.ReferenceNumero</h6>
+                                        <small>@courrier.DateEnregistrement.ToString("dd/MM/yyyy")</small>
+                                    </div>
+                                    <p class="mb-1">@courrier.Objet</p>
+                                    <small>@(courrier.CategorieCourrier?.Nom ?? "Non catégorisé") - @courrier.Priorite</small>
+                                </a>
+                            }
                         }
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mt-4">
-        <!-- Distribution par catégorie -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Distribution par catégorie</h5>
-                </div>
-                <div class="card-body">
-                    <div class="list-group">
-                        @foreach (var cat in Model.CourriersByCategory)
+                        else
                         {
-                            <div class="list-group-item">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span>@cat.Key</span>
-                                    <span class="badge bg-primary rounded-pill">@cat.Value</span>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Distribution par statut -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Distribution par statut</h5>
-                </div>
-                <div class="card-body">
-                    <div class="list-group">
-                        @foreach (var status in Model.CourriersByStatus)
-                        {
-                            <div class="list-group-item">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span>@status.Key</span>
-                                    <span class="badge bg-primary rounded-pill">@status.Value</span>
-                                </div>
+                            <div class="list-group-item text-center text-muted">
+                                Aucun courrier à valider
                             </div>
                         }
                     </div>
@@ -145,12 +117,6 @@
                 <a asp-action="Create" class="btn btn-primary">
                     <i class="bi bi-plus-circle"></i> Nouveau courrier
                 </a>
-                <a asp-action="ToValidate" class="btn btn-warning">
-                    <i class="bi bi-list-check"></i> Voir courriers à valider
-                </a>
-                <a asp-action="Index" class="btn btn-secondary">
-                    <i class="bi bi-archive"></i> Tous les courriers
-                </a>
                 <button type="button" class="btn btn-outline-primary" onclick="refreshDashboard()">
                     <i class="bi bi-arrow-clockwise"></i> Actualiser
                 </button>
@@ -161,81 +127,14 @@
 
 @section Scripts {
     <script>
-        // Actualise les données du tableau de bord
-        async function refreshDashboard() {
-            try {
-                const response = await fetch('/Indexateur/GetDashboardData');
-                const data = await response.json();
-
-                if (data) {
-                    // Mettre à jour les statistiques
-                    updateStatCard('totalIndexes', data.totalCourriersIndexes);
-                    updateStatCard('tresPrioritaires', data.courriersTresPrioritaires);
-                    updateStatCard('enAttente', data.courriersEnAttente);
-                    updateStatCard('actionsAujourdhui', data.recentActions.length);
-
-                    // Mettre à jour les actions récentes
-                    const actionsList = document.querySelector('.col-md-6:first-child .list-group');
-                    actionsList.innerHTML = data.recentActions.map(action => `
-                        <a href="/Indexateur/Details/${action.courrierId}" class="list-group-item list-group-item-action">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">${action.action}</h6>
-                                <small>${new Date(action.timestamp).toLocaleString()}</small>
-                            </div>
-                            <p class="mb-1">${action.note}</p>
-                        </a>
-                    `).join('');
-
-                    // Mettre à jour les courriers à valider
-                    const courriersAValider = document.querySelector('.col-md-6:last-child .list-group');
-                    courriersAValider.innerHTML = data.courriersAValider.map(courrier => `
-                        <a href="/Indexateur/Details/${courrier.id}" class="list-group-item list-group-item-action">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">${courrier.referenceNumero}</h6>
-                                <small>${new Date(courrier.dateEnregistrement).toLocaleDateString()}</small>
-                            </div>
-                            <p class="mb-1">${courrier.objet}</p>
-                            <small>${courrier.categorieCourrier?.nom || ''} - ${courrier.priorite}</small>
-                        </a>
-                    `).join('');
-
-                    // Mettre à jour les distributions
-                    updateDistribution('category', data.courriersByCategory);
-                    updateDistribution('status', data.courriersByStatus);
-                }
-            } catch (error) {
-                console.error('Erreur lors de l\'actualisation:', error);
-            }
-        }
-
-        function updateStatCard(id, value) {
-            const card = document.querySelector(`#${id} .display-4`);
-            if (card) card.textContent = value;
-        }
-
-        function updateDistribution(type, data) {
-            const container = document.querySelector(`.col-md-6 .card-header:contains('${type === 'category' ? 'Distribution par catégorie' : 'Distribution par statut'}')`)
-                ?.closest('.card')
-                ?.querySelector('.list-group');
-            
-            if (container) {
-                container.innerHTML = Object.entries(data).map(([key, value]) => `
-                    <div class="list-group-item">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span>${key}</span>
-                            <span class="badge bg-primary rounded-pill">${value}</span>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-
-        // Actualiser toutes les 30 secondes
-        setInterval(refreshDashboard, 30000);
-
         // Actualiser après l'enregistrement d'un courrier
         document.addEventListener('courrierSaved', function() {
-            refreshDashboard();
+            location.reload();
         });
+
+        // Actualiser manuellement
+        function refreshDashboard() {
+            location.reload();
+        }
     </script>
 }

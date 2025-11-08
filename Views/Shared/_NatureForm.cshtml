@@ -1,49 +1,28 @@
-@model JconsultGC.Models.Correspondant
+@model JconsultGC.Models.NatureCourrier
 
-<form id="correspondantForm" asp-action="Create" asp-controller="Correspondant" method="post" class="needs-validation" novalidate>
+<form id="natureForm" asp-action="Create" asp-controller="NatureCourriers" method="post" class="needs-validation" novalidate>
     @Html.AntiForgeryToken()
     <div class="modal-body">
         <div class="row g-3">
-            <div class="col-md-6">
-                <label asp-for="Nom" class="form-label">Nom</label>
+            <div class="col-12">
+                <label asp-for="Nom" class="form-label">Nom de la nature *</label>
                 <input asp-for="Nom" class="form-control" required />
                 <div class="invalid-feedback">
-                    Veuillez saisir le nom
+                    Veuillez saisir le nom de la nature
                 </div>
                 <span asp-validation-for="Nom" class="text-danger"></span>
             </div>
 
-            <div class="col-md-6">
-                <label asp-for="Societe" class="form-label">Société</label>
-                <input asp-for="Societe" class="form-control" required />
-                <div class="invalid-feedback">
-                    Veuillez saisir la société
-                </div>
-                <span asp-validation-for="Societe" class="text-danger"></span>
-            </div>
-
             <div class="col-12">
-                <label asp-for="Adresse" class="form-label">Adresse</label>
-                <textarea asp-for="Adresse" class="form-control" rows="2"></textarea>
-                <span asp-validation-for="Adresse" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-6">
-                <label asp-for="Telephone" class="form-label">Téléphone</label>
-                <input asp-for="Telephone" class="form-control phone-mask" />
-                <span asp-validation-for="Telephone" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-6">
-                <label asp-for="Email" class="form-label">Email</label>
-                <input asp-for="Email" type="email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
+                <label asp-for="Description" class="form-label">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
             </div>
         </div>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-        <button type="submit" class="btn btn-primary" id="btnSaveCorrespondant">
+        <button type="submit" class="btn btn-primary" id="btnSaveNature">
             <i class="fas fa-save me-1"></i> Enregistrer
         </button>
     </div>
@@ -51,7 +30,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('correspondantForm');
+    const form = document.getElementById('natureForm');
     
     form.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -80,15 +59,15 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data => {
             if (data.success) {
-                // Ajout du nouveau correspondant à la liste déroulante
-                const select = document.getElementById('CorrespondantId');
+                // Ajout de la nouvelle nature à la liste déroulante
+                const select = document.getElementById('NatureCourrierId');
                 if (select) {
                     const option = new Option(data.nom, data.id, false, true);
                     select.appendChild(option);
                 }
                 
                 // Fermer le modal
-                const modalElement = document.getElementById('correspondantModal');
+                const modalElement = document.getElementById('natureModal');
                 if (modalElement) {
                     const modal = bootstrap.Modal.getInstance(modalElement);
                     if (modal) {
@@ -101,12 +80,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     Swal.fire({
                         icon: 'success',
                         title: 'Succès !',
-                        text: 'Expéditeur enregistré avec succès',
+                        text: 'Nature enregistrée avec succès',
                         timer: 2000,
                         showConfirmButton: false
                     });
                 } else {
-                    alert('Expéditeur enregistré avec succès');
+                    alert('Nature enregistrée avec succès');
                 }
                 
                 // Réinitialiser le formulaire
@@ -138,15 +117,5 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
-    // Initialisation du masque téléphone (optionnel - seulement si IMask est disponible)
-    const phoneMaskElements = document.querySelectorAll('.phone-mask');
-    if (typeof IMask !== 'undefined' && phoneMaskElements.length > 0) {
-        phoneMaskElements.forEach(function(element) {
-            IMask(element, {
-                mask: '+{237} 000-000-000'
-            });
-        });
-    }
 });
 </script>

@@ -25,13 +25,13 @@ namespace JconsultGC.Models
         public TimeSpan? HeureRecu { get; set; }
 
         [Display(Name = "Nature")]
-        public string? Nature { get; set; }
+        public int? NatureCourrierId { get; set; }
 
         [Display(Name = "Service concerné")]
         public string? ServiceConcerne { get; set; }
 
         [Display(Name = "Dossier de classement")]
-        public string? DossierDeClassement { get; set; }
+        public int? DossierClassementId { get; set; }
 
         [Display(Name = "Utilisateurs en copie")]
         public string? UtilisateursEnCopie { get; set; }

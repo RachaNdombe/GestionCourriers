@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
@@ -10,18 +11,18 @@ using System.ComponentModel.DataAnnotations;
 namespace JconsultGC.Controllers
 {
     [Authorize]
-    public class IndexateurController : Controller
+    public class CourriersEntrantController : Controller
     {
         private readonly ProjetIdDbContext _context;
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly ILogger<IndexateurController> _logger;
+        private readonly ILogger<CourriersEntrantController> _logger;
 
-        public IndexateurController(
+        public CourriersEntrantController(
             ProjetIdDbContext context,
             UserManager<User> userManager,
             RoleManager<IdentityRole> roleManager,
-            ILogger<IndexateurController> logger)
+            ILogger<CourriersEntrantController> logger)
         {
             _context = context;
             _userManager = userManager;
@@ -29,52 +30,7 @@ namespace JconsultGC.Controllers
             _logger = logger;
         }
 
-        // GET: Indexateur/Dashboard
-        [Authorize(Roles = "Indexateur")]
-        public async Task<IActionResult> Dashboard()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-
-            var today = DateTime.Today;
-            
-            var viewModel = new IndexateurDashboardViewModel
-            {
-                TotalCourriersIndexes = await _context.Courriers!
-                    .Where(c => c.CreatedById == user.Id)
-                    .CountAsync(),
-                CourriersTresPrioritaires = await _context.Courriers!
-                    .Where(c => c.CreatedById == user.Id && c.Priorite == (PrioriteLevel)3) // Urgent
-                    .CountAsync(),
-                CourriersEnAttente = await _context.Courriers!
-                    .Where(c => c.CreatedById == user.Id && c.Statut == "A valider")
-                    .CountAsync(),
-                ActionsAujourdhui = await _context.CourrierHistories!
-                    .Where(h => h.UserId == user.Id && h.Timestamp.Date == today)
-                    .CountAsync(),
-                CourriersASaisir = await _context.Courriers!
-                    .Where(c => c.CreatedById == user.Id && c.Statut == "A saisir")
-                    .CountAsync(),
-                RecentActions = await _context.CourrierHistories!
-                    .Where(h => h.UserId == user.Id && h.Timestamp.Date == today)
-                    .OrderByDescending(h => h.Timestamp)
-                    .Take(10)
-                    .ToListAsync(),
-                CourriersAValider = await _context.Courriers!
-                    .Where(c => c.CreatedById == user.Id && c.Statut == "A valider")
-                    .OrderByDescending(c => c.DateEnregistrement)
-                    .Take(10)
-                    .Include(c => c.CategorieCourrier)
-                    .ToListAsync()
-            };
-
-            return View(viewModel);
-        }
-
-        // GET: Indexateur/Create
+        // GET: CourriersEntrant/Create
         [Authorize(Roles = "Indexateur")]
         public async Task<IActionResult> Create()
         {
@@ -125,7 +81,7 @@ namespace JconsultGC.Controllers
             return View(viewModel);
         }
 
-        // POST: Indexateur/Create
+        // POST: CourriersEntrant/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Indexateur")]
@@ -266,13 +222,130 @@ namespace JconsultGC.Controllers
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Courrier entrant créé avec succès !";
-                return RedirectToAction("Dashboard");
+                return RedirectToAction("Dashboard", "Indexateur");
             }
 
             // Recharger les données pour la réaffichage du formulaire
             await RechargerDonneesFormulaire(model);
 
             return View(model);
+        }
+
+        // POST: CourriersEntrant/GenerateNumeroOrdre
+        [HttpPost]
+        public async Task<IActionResult> GenerateNumeroOrdre()
+        {
+            try
+            {
+                var numeroOrdre = await GenererNumeroOrdreAsync();
+                return Json(new { success = true, numeroOrdre = numeroOrdre });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la génération du numéro d'ordre");
+                return Json(new { success = false, message = "Erreur lors de la génération du numéro d'ordre" });
+            }
+        }
+
+        // POST: CourriersEntrant/CheckNumeroOrdre
+        [HttpPost]
+        public async Task<IActionResult> CheckNumeroOrdre([FromBody] CheckNumeroOrdreRequest request)
+        {
+            try
+            {
+                var numeroRegistre = request.NumeroRegistre ?? "";
+                var existingCourrier = await _context.Courriers!
+                    .FirstOrDefaultAsync(c => c.OrdreNumero == request.NumeroOrdre && 
+                                            c.RegistreNumero == numeroRegistre);
+
+                if (existingCourrier != null)
+                {
+                    return Json(new { 
+                        success = false, 
+                        message = $"Un courrier avec le numéro d'ordre '{request.NumeroOrdre}' et le numéro de registre '{numeroRegistre}' existe déjà.",
+                        isDuplicate = true
+                    });
+                }
+
+                return Json(new { 
+                    success = true, 
+                    message = "Numéro d'ordre disponible.",
+                    isDuplicate = false
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la vérification du numéro d'ordre");
+                return Json(new { success = false, message = "Erreur lors de la vérification du numéro d'ordre" });
+            }
+        }
+
+        // POST: CourriersEntrant/UploadFile
+        [HttpPost]
+        public async Task<IActionResult> UploadFile(IFormFile file)
+        {
+            try
+            {
+                _logger.LogInformation("UploadFile appelé avec fichier: {FileName}, taille: {FileSize}", 
+                    file?.FileName ?? "null", file?.Length ?? 0);
+
+                if (file == null || file.Length == 0)
+                {
+                    _logger.LogWarning("Aucun fichier fourni");
+                    return Json(new { success = false, message = "Aucun fichier sélectionné" });
+                }
+
+                // Vérifier la taille du fichier (10MB max)
+                if (file.Length > 10 * 1024 * 1024)
+                {
+                    _logger.LogWarning("Fichier trop volumineux: {FileSize} bytes", file.Length);
+                    return Json(new { success = false, message = "Le fichier est trop volumineux (max 10MB)" });
+                }
+
+                // Vérifier le type de fichier
+                var allowedTypes = new[] { ".pdf", ".doc", ".docx", ".jpg", ".jpeg", ".png", ".tiff" };
+                var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+                if (!allowedTypes.Contains(fileExtension))
+                {
+                    _logger.LogWarning("Type de fichier non autorisé: {FileExtension}", fileExtension);
+                    return Json(new { success = false, message = "Type de fichier non autorisé" });
+                }
+
+                // Créer le dossier d'upload s'il n'existe pas
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "courriers");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                    _logger.LogInformation("Dossier d'upload créé: {UploadsFolder}", uploadsFolder);
+                }
+
+                // Générer un nom de fichier unique
+                var fileName = $"{Guid.NewGuid()}{fileExtension}";
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                // Sauvegarder le fichier
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                _logger.LogInformation("Fichier sauvegardé: {FilePath}", filePath);
+
+                return Json(new { 
+                    success = true, 
+                    message = "Fichier uploadé avec succès",
+                    fileName = file.FileName,
+                    fileSize = file.Length,
+                    filePath = $"/uploads/courriers/{fileName}",
+                    mimeType = file.ContentType,
+                    extension = fileExtension
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de l'upload du fichier: {Message}", ex.Message);
+                return Json(new { success = false, message = $"Erreur lors de l'upload du fichier: {ex.Message}" });
+            }
         }
 
         private async Task<string> GenererNumeroOrdreAsync()
@@ -356,4 +429,46 @@ namespace JconsultGC.Controllers
             }).ToListAsync() ?? new List<LookupOption>();
         }
     }
+
+    // ViewModels pour CourriersEntrant
+    public class CreateCourrierViewModel
+    {
+        public string OrdreNumero { get; set; } = string.Empty;
+        public string? RegistreNumero { get; set; }
+        public string? ReferenceNumero { get; set; }
+        public string Objet { get; set; } = string.Empty;
+        public DateTime DateReception { get; set; }
+        public string? HeureRecu { get; set; }
+        public string? ServiceConcerne { get; set; }
+        public string? UtilisateursEnCopie { get; set; }
+        public int? CorrespondantId { get; set; }
+        public int? ServiceId { get; set; }
+        public int? CategorieCourrierId { get; set; }
+        public int? ModeEnvoiId { get; set; }
+        public int? NatureCourrierId { get; set; }
+        public int? TypeDossierId { get; set; }
+        public int? DossierClassementId { get; set; }
+        public int Confidentialite { get; set; }
+        public int Priorite { get; set; }
+        public List<ServiceOption> AvailableServices { get; set; } = new();
+        public List<LookupOption> AvailableCategories { get; set; } = new();
+        public List<LookupOption> AvailableNatures { get; set; } = new();
+        public List<LookupOption> AvailableModesEnvoi { get; set; } = new();
+        public List<LookupOption> AvailableCorrespondants { get; set; } = new();
+        public List<LookupOption> AvailableDossiers { get; set; } = new();
+        public List<LookupOption> AvailableTypeDossiers { get; set; } = new();
+    }
+
+    public class CheckNumeroOrdreRequest
+    {
+        public string NumeroOrdre { get; set; } = string.Empty;
+        public string? NumeroRegistre { get; set; }
+    }
+
+    public class ServiceOption
+    {
+        public int Id { get; set; }
+        public string Nom { get; set; } = string.Empty;
+    }
+
 }

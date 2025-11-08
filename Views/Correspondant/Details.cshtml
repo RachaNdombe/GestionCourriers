@@ -1,0 +1,86 @@
+@model JconsultGC.Models.Correspondant
+
+@{
+    ViewData["Title"] = "Détails de l'expéditeur";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Détails de l'expéditeur</h2>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                <i class="bi bi-pencil"></i> Modifier
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Retour à la liste
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <strong>Nom complet:</strong>
+                        <p class="mt-1">@Model.Nom</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Société:</strong>
+                        <p class="mt-1">@(Model.Societe ?? "Non spécifié")</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Email:</strong>
+                        <p class="mt-1">@(Model.Email ?? "Non spécifié")</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Téléphone:</strong>
+                        <p class="mt-1">@(Model.Telephone ?? "Non spécifié")</p>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <strong>Adresse:</strong>
+                        <p class="mt-1">@(Model.Adresse ?? "Non spécifié")</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-4 border-top">
+                <h5>Courriers associés</h5>
+                @if (Model.Courriers?.Any() == true)
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Référence</th>
+                                    <th>Objet</th>
+                                    <th>Date de réception</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var courrier in Model.Courriers)
+                                {
+                                    <tr>
+                                        <td>@courrier.ReferenceNumero</td>
+                                        <td>@courrier.Objet</td>
+                                        <td>@courrier.DateReception?.ToString("dd/MM/yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">Aucun courrier associé à cet expéditeur.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

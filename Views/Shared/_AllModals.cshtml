@@ -1,0 +1,125 @@
+<!-- Modal pour Correspondant -->
+<div class="modal fade" id="correspondantModal" tabindex="-1" aria-labelledby="correspondantModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="correspondantModalLabel">Nouveau Correspondant</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            @await Html.PartialAsync("_CorrespondantForm", new JconsultGC.Models.Correspondant())
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour Nature -->
+<div class="modal fade" id="natureModal" tabindex="-1" aria-labelledby="natureModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="natureModalLabel">Nouvelle Nature</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            @await Html.PartialAsync("_NatureForm", new JconsultGC.Models.NatureCourrier())
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour TypeDossier -->
+<div class="modal fade" id="typeDossierModal" tabindex="-1" aria-labelledby="typeDossierModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="typeDossierModalLabel">Nouveau Type de Dossier</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            @await Html.PartialAsync("_TypeDossierForm", new JconsultGC.Models.TypeDossier())
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour Categorie -->
+<div class="modal fade" id="categorieModal" tabindex="-1" aria-labelledby="categorieModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="categorieModalLabel">Nouvelle Catégorie</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            @await Html.PartialAsync("_CategorieForm", new JconsultGC.Models.CategorieCourrier())
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour DossierClassement -->
+<div class="modal fade" id="dossierClassementModal" tabindex="-1" aria-labelledby="dossierClassementModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dossierClassementModalLabel">Nouveau Dossier de Classement</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            @await Html.PartialAsync("_DossierClassementForm", new JconsultGC.Models.DossierClassement())
+        </div>
+    </div>
+</div>
+
+<script>
+// Fonctions utilitaires pour ouvrir les modaux
+function openCorrespondantModal() {
+    const modal = new bootstrap.Modal(document.getElementById('correspondantModal'));
+    modal.show();
+}
+
+function openNatureModal() {
+    const modal = new bootstrap.Modal(document.getElementById('natureModal'));
+    modal.show();
+}
+
+function openTypeDossierModal() {
+    const modal = new bootstrap.Modal(document.getElementById('typeDossierModal'));
+    modal.show();
+}
+
+function openCategorieModal() {
+    const modal = new bootstrap.Modal(document.getElementById('categorieModal'));
+    modal.show();
+}
+
+function openDossierClassementModal() {
+    const modal = new bootstrap.Modal(document.getElementById('dossierClassementModal'));
+    modal.show();
+}
+
+// Initialisation des boutons d'ajout rapide
+document.addEventListener('DOMContentLoaded', function() {
+    // Bouton pour ajouter un correspondant
+    const btnAddCorrespondant = document.getElementById('btnAddCorrespondant');
+    if (btnAddCorrespondant) {
+        btnAddCorrespondant.addEventListener('click', openCorrespondantModal);
+    }
+
+    // Bouton pour ajouter une nature
+    const btnAddNature = document.getElementById('btnAddNature');
+    if (btnAddNature) {
+        btnAddNature.addEventListener('click', openNatureModal);
+    }
+
+    // Bouton pour ajouter un type de dossier
+    const btnAddTypeDossier = document.getElementById('btnAddTypeDossier');
+    if (btnAddTypeDossier) {
+        btnAddTypeDossier.addEventListener('click', openTypeDossierModal);
+    }
+
+    // Bouton pour ajouter une catégorie
+    const btnAddCategorie = document.getElementById('btnAddCategorie');
+    if (btnAddCategorie) {
+        btnAddCategorie.addEventListener('click', openCategorieModal);
+    }
+
+    // Bouton pour ajouter un dossier de classement
+    const btnAddDossierClassement = document.getElementById('btnAddDossierClassement');
+    if (btnAddDossierClassement) {
+        btnAddDossierClassement.addEventListener('click', openDossierClassementModal);
+    }
+});
+</script>
