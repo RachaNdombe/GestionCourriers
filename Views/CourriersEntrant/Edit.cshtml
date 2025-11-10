@@ -1,0 +1,269 @@
+@model JconsultGC.Models.CourrierCreateViewModel
+
+@{
+    ViewData["Title"] = "Modifier le courrier";
+    var courrierId = ViewBag.CourrierId;
+}
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+<div class="container mt-4">
+    <h2>Modifier le courrier</h2>
+
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="id" value="@courrierId" />
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="OrdreNumero"></label>
+                    <input asp-for="OrdreNumero" class="form-control" readonly placeholder="Généré automatiquement" />
+                    <small class="form-text text-muted">Numéro généré automatiquement</small>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="RegistreNumero"></label>
+                    <input asp-for="RegistreNumero" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ReferenceNumero"></label>
+                    <input asp-for="ReferenceNumero" class="form-control" placeholder="RF-06-06" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Objet">Objet</label>
+                    <input asp-for="Objet" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="DateReception"></label>
+                    <input asp-for="DateReception" class="form-control" type="date" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="HeureRecu"></label>
+                    <input asp-for="HeureRecu" class="form-control" type="time" />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>Catégorie</label>
+                    <div class="d-flex gap-2 align-items-center">
+                        <select asp-for="CategorieCourrierId" class="form-control">
+                            <option value=""></option>
+                            @foreach (var categorie in Model.AvailableCategories)
+                            {
+                                <option value="@categorie.Id">@categorie.Nom</option>
+                            }
+                        </select>
+                        <button type="button" class="btn btn-primary" id="btnAddCategorie">
+                            <i class="bi bi-plus-circle"></i> Nouveau
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>Mode d'envoi</label>
+                    <div class="d-flex gap-2 align-items-center">
+                        <select asp-for="ModeEnvoiId" class="form-control" id="ModeEnvoiId">
+                            <option value=""></option>
+                            @foreach (var mode in Model.AvailableModesEnvoi)
+                            {
+                                <option value="@mode.Id">@mode.Nom</option>
+                            }
+                        </select>
+                        <button type="button" class="btn btn-primary" id="btnAddModeEnvoi">
+                            <i class="bi bi-plus-circle"></i> Nouveau
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Confidentialité</label>
+                    <select asp-for="Confidentialite" class="form-control">
+                        <option value="0">Public</option>
+                        <option value="1">Interne</option>
+                        <option value="2">Confidentiel</option>
+                        <option value="3">Très confidentiel</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Priorité</label>
+                    <select asp-for="Priorite" class="form-control">
+                        <option value="0">Basse</option>
+                        <option value="1">Normal</option>
+                        <option value="2">Haute</option>
+                        <option value="3">Urgent</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label>Nature</label>
+                    <div class="d-flex gap-2 align-items-center">
+                        <select asp-for="NatureCourrierId" class="form-control">
+                            <option value=""></option>
+                            @foreach (var nature in Model.AvailableNatures)
+                            {
+                                <option value="@nature.Id">@nature.Nom</option>
+                            }
+                        </select>
+                        <button type="button" class="btn btn-primary" id="btnAddNature">
+                            <i class="bi bi-plus-circle"></i> Nouveau
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>Type de dossier</label>
+                    <div class="d-flex gap-2 align-items-center">
+                        <select asp-for="TypeDossierId" class="form-control">
+                            <option value=""></option>
+                            @foreach (var type in Model.AvailableTypeDossiers)
+                            {
+                                <option value="@type.Id">@type.Nom</option>
+                            }
+                        </select>
+                        <button type="button" class="btn btn-primary" id="btnAddTypeDossier">
+                            <i class="bi bi-plus-circle"></i> Nouveau
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>Dossier de classement</label>
+                    <div class="d-flex gap-2 align-items-center">
+                        <select asp-for="DossierClassementId" class="form-control" id="dossierClassementSelect">
+                            <option value=""></option>
+                            @foreach (var dossier in Model.AvailableDossiers)
+                            {
+                                <option value="@dossier.Id">@dossier.Nom</option>
+                            }
+                        </select>
+                        <button type="button" class="btn btn-primary" id="btnAddDossierClassement">
+                            <i class="bi bi-plus-circle"></i> Nouveau
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Service concerné</label>
+                    <select asp-for="ServiceConcerne" class="form-control">
+                        <option value=""></option>
+                        @foreach (var service in Model.AvailableServices)
+                        {
+                            <option value="@service.Nom">@service.Nom</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="UtilisateursEnCopie"></label>
+                    <input asp-for="UtilisateursEnCopie" class="form-control" />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>Expéditeur</label>
+                    <div class="d-flex gap-2 align-items-center">
+                        <select asp-for="CorrespondantId" class="form-control">
+                            <option value=""></option>
+                            @foreach (var correspondant in Model.AvailableCorrespondants)
+                            {
+                                <option value="@correspondant.Id">@correspondant.Nom</option>
+                            }
+                        </select>
+                        <button type="button" class="btn btn-primary" id="btnAddCorrespondant">
+                            <i class="bi bi-plus-circle"></i> Nouveau
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Service destinataire</label>
+                    <select asp-for="ServiceId" class="form-control">
+                        <option value=""></option>
+                        @foreach (var service in Model.AvailableServices)
+                        {
+                            <option value="@service.Id">@service.Nom</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Pièces jointes</label>
+                    <input type="file" name="Attachments" multiple class="form-control" id="fileInput" />
+                    <small class="form-text text-muted">Vous pouvez ajouter de nouvelles pièces jointes ici.</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary" id="submitBtn">Enregistrer les modifications</button>
+            <a asp-action="Details" asp-controller="CourriersEntrant" asp-route-id="@courrierId" class="btn btn-secondary">Annuler</a>
+        </div>
+    </form>
+</div>
+
+<!-- Inclusion de tous les modaux -->
+@await Html.PartialAsync("_AllModals")
+
+<style>
+    #submitBtn {
+        position: relative;
+        z-index: 1000;
+        cursor: pointer;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // Gestion du nouveau mode d'envoi
+        document.getElementById('btnAddModeEnvoi').addEventListener('click', function() {
+            const modal = new bootstrap.Modal(document.getElementById('modeEnvoiModal'));
+            modal.show();
+        });
+
+        // Gestion du nouveau correspondant
+        document.getElementById('btnAddCorrespondant').addEventListener('click', function() {
+            const modal = new bootstrap.Modal(document.getElementById('correspondantModal'));
+            modal.show();
+        });
+
+        // Validation du formulaire avant soumission
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const requiredFields = [
+                'Objet',
+                'DateReception',
+                'CategorieCourrierId',
+                'ModeEnvoiId',
+                'NatureCourrierId',
+                'CorrespondantId',
+                'ServiceId'
+            ];
+            
+            let isValid = true;
+            let errorMessage = '';
+            
+            requiredFields.forEach(field => {
+                const element = document.querySelector(`[name="${field}"]`);
+                if (element && !element.value) {
+                    isValid = false;
+                    errorMessage = `Le champ "${element.previousElementSibling?.textContent || field}" est requis.`;
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                alert(errorMessage);
+            }
+        });
+    </script>
+}

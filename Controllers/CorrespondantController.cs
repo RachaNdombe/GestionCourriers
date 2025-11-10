@@ -40,32 +40,53 @@ public class CorrespondantController : Controller
     {
         if (ModelState.IsValid)
         {
-            // Vérifier si un correspondant avec le même email existe déjà
-            if (!string.IsNullOrEmpty(correspondant.Email))
+            try
             {
-                var existingCorrespondant = await _context.Correspondants
-                    .FirstOrDefaultAsync(c => c.Email == correspondant.Email);
-                if (existingCorrespondant != null)
+                // Vérifier si un correspondant avec le même email existe déjà
+                if (!string.IsNullOrEmpty(correspondant.Email))
                 {
-                    ModelState.AddModelError("Email", "Un expéditeur avec cet email existe déjà");
-                    return View(correspondant);
+                    var existingCorrespondant = await _context.Correspondants
+                        .FirstOrDefaultAsync(c => c.Email == correspondant.Email);
+                    if (existingCorrespondant != null)
+                    {
+                        return Json(new { success = false, message = "Un expéditeur avec cet email existe déjà" });
+                    }
                 }
+
+                // Nettoyer les données
+                correspondant.Nom = correspondant.Nom?.Trim();
+                correspondant.Email = correspondant.Email?.Trim().ToLower();
+                correspondant.Telephone = correspondant.Telephone?.Trim();
+                correspondant.Societe = correspondant.Societe?.Trim();
+                correspondant.Adresse = correspondant.Adresse?.Trim();
+
+                await _context.Correspondants.AddAsync(correspondant);
+                await _context.SaveChangesAsync();
+
+                var displayName = !string.IsNullOrEmpty(correspondant.Societe)
+                    ? correspondant.Societe
+                    : correspondant.Nom;
+
+                return Json(new {
+                    success = true,
+                    id = correspondant.Id,
+                    nom = displayName,
+                    message = "Expéditeur créé avec succès"
+                });
             }
-
-            // Nettoyer les données
-            correspondant.Nom = correspondant.Nom?.Trim();
-            correspondant.Email = correspondant.Email?.Trim().ToLower();
-            correspondant.Telephone = correspondant.Telephone?.Trim();
-            correspondant.Societe = correspondant.Societe?.Trim();
-            correspondant.Adresse = correspondant.Adresse?.Trim();
-
-            await _context.Correspondants.AddAsync(correspondant);
-            await _context.SaveChangesAsync();
-            
-            TempData["SuccessMessage"] = "Expéditeur créé avec succès";
-            return RedirectToAction(nameof(Index));
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Erreur: {ex.Message}" });
+            }
         }
-        return View(correspondant);
+
+        // Retourner les erreurs de validation
+        var errors = ModelState.Values
+            .SelectMany(v => v.Errors)
+            .Select(e => e.ErrorMessage)
+            .ToList();
+        
+        return Json(new { success = false, message = "Erreurs de validation", errors = errors });
     }
 
     [HttpGet]
@@ -165,40 +186,30 @@ public class CorrespondantController : Controller
 
     [HttpPost]
     [Route("CreateAjax")]
-    [IgnoreAntiforgeryToken]
-    public async Task<IActionResult> CreateAjax([FromBody] Dictionary<string, object> data)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateAjax([FromBody] CorrespondantAjaxRequest request)
     {
         try
         {
-            _logger.LogInformation("CreateAjax called with data: {@Data}", data);
+            _logger.LogInformation("CreateAjax called with data: {@Request}", request);
 
             // Vérifier si les données sont présentes
-            if (data == null)
+            if (request == null)
             {
                 return Json(new { success = false, message = "Aucune donnée reçue" });
             }
 
-            // Extraire les données du dictionnaire avec des vérifications de sécurité
-            var raisonSocialeStr = data.ContainsKey("raisonSociale") ? data["raisonSociale"]?.ToString() : null;
-            var nom = data.ContainsKey("nom") ? data["nom"]?.ToString() : null;
-            var civilite = data.ContainsKey("civilite") ? data["civilite"]?.ToString() : null;
-            var email = data.ContainsKey("email") ? data["email"]?.ToString() : null;
-            var contact1 = data.ContainsKey("contact1") ? data["contact1"]?.ToString() : null;
-            var adresse = data.ContainsKey("adresse") ? data["adresse"]?.ToString() : null;
-            var ville = data.ContainsKey("ville") ? data["ville"]?.ToString() : null;
-            var codePostal = data.ContainsKey("codePostal") ? data["codePostal"]?.ToString() : null;
-            var pays = data.ContainsKey("pays") ? data["pays"]?.ToString() : null;
-
             // Validation des champs obligatoires
-            if (string.IsNullOrWhiteSpace(nom))
+            if (string.IsNullOrWhiteSpace(request.Nom))
             {
                 return Json(new { success = false, message = "Le nom est obligatoire" });
             }
 
             // Vérifier si un correspondant avec le même email existe déjà
-            if (!string.IsNullOrWhiteSpace(email))
+            if (!string.IsNullOrWhiteSpace(request.Email))
             {
-                var existingCorrespondant = _context.Correspondants.FirstOrDefault(c => c.Email == email);
+                var existingCorrespondant = await _context.Correspondants
+                    .FirstOrDefaultAsync(c => c.Email == request.Email);
                 if (existingCorrespondant != null)
                 {
                     return Json(new { success = false, message = "Un expéditeur avec cet email existe déjà" });
@@ -208,11 +219,11 @@ public class CorrespondantController : Controller
             // Créer le correspondant
             var correspondant = new Correspondant
             {
-                Nom = nom.Trim(),
-                Societe = raisonSocialeStr == "Organisation" ? nom.Trim() : null,
-                Email = !string.IsNullOrWhiteSpace(email) ? email.Trim().ToLower() : null,
-                Telephone = !string.IsNullOrWhiteSpace(contact1) ? contact1.Trim() : null,
-                Adresse = !string.IsNullOrWhiteSpace(adresse) ? adresse.Trim() : null
+                Nom = request.Nom.Trim(),
+                Societe = request.RaisonSociale == "Organisation" ? request.Nom.Trim() : null,
+                Email = !string.IsNullOrWhiteSpace(request.Email) ? request.Email.Trim().ToLower() : null,
+                Telephone = !string.IsNullOrWhiteSpace(request.Contact1) ? request.Contact1.Trim() : null,
+                Adresse = !string.IsNullOrWhiteSpace(request.Adresse) ? request.Adresse.Trim() : null
             };
 
             _logger.LogInformation("Creating correspondant: {@Correspondant}", correspondant);
@@ -269,4 +280,17 @@ public class CorrespondantController : Controller
     {
         return _context.Correspondants.Any(e => e.Id == id);
     }
+}
+
+public class CorrespondantAjaxRequest
+{
+    public string RaisonSociale { get; set; } = string.Empty;
+    public string Nom { get; set; } = string.Empty;
+    public string? Civilite { get; set; }
+    public string? Email { get; set; }
+    public string? Contact1 { get; set; }
+    public string? Adresse { get; set; }
+    public string? Ville { get; set; }
+    public string? CodePostal { get; set; }
+    public string? Pays { get; set; }
 }

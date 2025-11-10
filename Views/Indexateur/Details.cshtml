@@ -36,7 +36,7 @@
         @foreach (var doc in Model.Documents ?? Enumerable.Empty<JconsultGC.Models.Document>())
         {
             <li>
-                <a asp-action="OpenDocument" asp-route-id="@doc.Id" target="_blank">@doc.FileName</a>
+                <a asp-action="OpenDocument" asp-route-id="@doc.Id" target="_blank">@doc.NomFichier</a>
             </li>
         }
     </ul>

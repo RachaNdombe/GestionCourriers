@@ -25,10 +25,11 @@ public class DashboardDataController : ControllerBase
     {
         var userId = _userManager.GetUserId(User);
         var model = new IndexateurDashboardViewModel();
+        var today = DateTime.Today;
 
-        // Get recent actions by this indexateur
+        // Get recent actions by this indexateur (today only)
         model.RecentActions = await _context.CourrierHistories!
-            .Where(h => h.UserId == userId)
+            .Where(h => h.UserId == userId && h.Timestamp.Date == today)
             .OrderByDescending(h => h.Timestamp)
             .Take(10)
             .ToListAsync();
@@ -56,6 +57,11 @@ public class DashboardDataController : ControllerBase
         model.TotalCourriersIndexes = courriers.Count;
         model.CourriersTresPrioritaires = courriers.Count(c => c.Priorite == PrioriteLevel.Urgent);
         model.CourriersEnAttente = courriers.Count(c => c.Statut == "A valider");
+        
+        // Calculate actions today for this indexateur
+        model.ActionsAujourdhui = await _context.CourrierHistories!
+            .Where(h => h.UserId == userId && h.Timestamp.Date == today)
+            .CountAsync();
 
         // Distribution by category
         model.CourriersByCategory = courriers

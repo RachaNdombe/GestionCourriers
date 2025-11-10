@@ -1,41 +1,50 @@
-@model JconsultGC.Models.Correspondant
+@model JconsultGC.Models.ModeEnvoi
 
-<form id="correspondantForm" class="needs-validation" novalidate>
+<form id="modeEnvoiForm" asp-action="Create" asp-controller="ModesEnvoi" method="post" class="needs-validation" novalidate>
     @Html.AntiForgeryToken()
     <div class="modal-body">
         <div class="row g-3">
             <div class="col-md-6">
-                <label for="Nom" class="form-label">Nom *</label>
-                <input type="text" id="Nom" name="Nom" class="form-control" required />
+                <label asp-for="Code" class="form-label">Code *</label>
+                <input asp-for="Code" class="form-control" required />
                 <div class="invalid-feedback">
-                    Veuillez saisir le nom
+                    Veuillez saisir le code du mode d'envoi
                 </div>
+                <span asp-validation-for="Code" class="text-danger"></span>
             </div>
 
             <div class="col-md-6">
-                <label for="Societe" class="form-label">Société</label>
-                <input type="text" id="Societe" name="Societe" class="form-control" />
+                <label asp-for="Libelle" class="form-label">Libellé *</label>
+                <input asp-for="Libelle" class="form-control" required />
+                <div class="invalid-feedback">
+                    Veuillez saisir le libellé du mode d'envoi
+                </div>
+                <span asp-validation-for="Libelle" class="text-danger"></span>
             </div>
 
             <div class="col-12">
-                <label for="Adresse" class="form-label">Adresse</label>
-                <textarea id="Adresse" name="Adresse" class="form-control" rows="2"></textarea>
+                <label asp-for="Description" class="form-label">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
             </div>
 
             <div class="col-md-6">
-                <label for="Telephone" class="form-label">Téléphone</label>
-                <input type="text" id="Telephone" name="Telephone" class="form-control phone-mask" />
+                <label asp-for="Ordre" class="form-label">Ordre</label>
+                <input asp-for="Ordre" class="form-control" type="number" value="0" />
+                <span asp-validation-for="Ordre" class="text-danger"></span>
             </div>
 
             <div class="col-md-6">
-                <label for="Email" class="form-label">Email</label>
-                <input type="email" id="Email" name="Email" class="form-control" />
+                <div class="form-check mt-4">
+                    <input asp-for="Actif" class="form-check-input" checked />
+                    <label asp-for="Actif" class="form-check-label">Actif</label>
+                </div>
             </div>
         </div>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-        <button type="submit" class="btn btn-primary" id="btnSaveCorrespondant">
+        <button type="submit" class="btn btn-primary" id="btnSaveModeEnvoi">
             <i class="fas fa-save me-1"></i> Enregistrer
         </button>
     </div>
@@ -43,7 +52,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('correspondantForm');
+    const form = document.getElementById('modeEnvoiForm');
     
     form.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -54,23 +63,13 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        const formData = {
-            RaisonSociale: document.getElementById('Societe').value ? 'Organisation' : 'Personne',
-            Nom: document.getElementById('Nom').value,
-            Civilite: '',
-            Email: document.getElementById('Email').value,
-            Contact1: document.getElementById('Telephone').value,
-            Adresse: document.getElementById('Adresse').value,
-            Ville: '',
-            CodePostal: '',
-            Pays: ''
-        };
+        const formData = new FormData(this);
         
-        fetch('/Correspondants/CreateAjax', {
+        fetch(this.action, {
             method: 'POST',
-            body: JSON.stringify(formData),
+            body: new URLSearchParams(formData),
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
                 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
             }
         })
@@ -82,15 +81,15 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data => {
             if (data.success) {
-                // Ajout du nouveau correspondant à la liste déroulante
-                const select = document.getElementById('CorrespondantId');
+                // Ajout du nouveau mode d'envoi à la liste déroulante
+                const select = document.getElementById('ModeEnvoiId');
                 if (select) {
-                    const option = new Option(data.nom, data.id, false, true);
+                    const option = new Option(data.libelle, data.id, false, true);
                     select.appendChild(option);
                 }
                 
                 // Fermer le modal
-                const modalElement = document.getElementById('correspondantModal');
+                const modalElement = document.getElementById('modeEnvoiModal');
                 if (modalElement) {
                     const modal = bootstrap.Modal.getInstance(modalElement);
                     if (modal) {
@@ -103,12 +102,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     Swal.fire({
                         icon: 'success',
                         title: 'Succès !',
-                        text: 'Expéditeur enregistré avec succès',
+                        text: 'Mode d\'envoi enregistré avec succès',
                         timer: 2000,
                         showConfirmButton: false
                     });
                 } else {
-                    alert('Expéditeur enregistré avec succès');
+                    alert('Mode d\'envoi enregistré avec succès');
                 }
                 
                 // Réinitialiser le formulaire
@@ -140,15 +139,5 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
-    // Initialisation du masque téléphone (optionnel - seulement si IMask est disponible)
-    const phoneMaskElements = document.querySelectorAll('.phone-mask');
-    if (typeof IMask !== 'undefined' && phoneMaskElements.length > 0) {
-        phoneMaskElements.forEach(function(element) {
-            IMask(element, {
-                mask: '+{237} 000-000-000'
-            });
-        });
-    }
 });
 </script>

@@ -35,11 +35,40 @@ namespace JconsultGC.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(modeEnvoi);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    // Vérifier si le code existe déjà
+                    var existing = await _context.ModeEnvois!
+                        .FirstOrDefaultAsync(m => m.Code == modeEnvoi.Code);
+                    
+                    if (existing != null)
+                    {
+                        return Json(new { success = false, message = "Un mode d'envoi avec ce code existe déjà" });
+                    }
+
+                    _context.Add(modeEnvoi);
+                    await _context.SaveChangesAsync();
+
+                    return Json(new {
+                        success = true,
+                        id = modeEnvoi.Id,
+                        libelle = modeEnvoi.Libelle,
+                        message = "Mode d'envoi créé avec succès"
+                    });
+                }
+                catch (Exception ex)
+                {
+                    return Json(new { success = false, message = $"Erreur: {ex.Message}" });
+                }
             }
-            return View(modeEnvoi);
+
+            // Retourner les erreurs de validation
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+            
+            return Json(new { success = false, message = "Erreurs de validation", errors = errors });
         }
 
         // POST: ModesEnvoi/CreateAjax

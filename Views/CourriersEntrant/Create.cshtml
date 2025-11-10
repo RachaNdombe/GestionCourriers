@@ -1,0 +1,258 @@
+@model JconsultGC.Models.CourrierCreateViewModel
+
+@{
+    ViewData["Title"] = "Créer un courrier entrant";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">@ViewData["Title"]</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post" enctype="multipart/form-data" id="createCourrierForm">
+                        @Html.AntiForgeryToken()
+                        
+                        <div class="row">
+                            <!-- Informations de base -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="OrdreNumero" class="control-label">N° d'ordre *</label>
+                                    <input asp-for="OrdreNumero" class="form-control" readonly />
+                                    <span asp-validation-for="OrdreNumero" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="RegistreNumero" class="control-label">N° de registre</label>
+                                    <input asp-for="RegistreNumero" class="form-control" />
+                                    <span asp-validation-for="RegistreNumero" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="ReferenceNumero" class="control-label">Référence</label>
+                                    <input asp-for="ReferenceNumero" class="form-control" />
+                                    <span asp-validation-for="ReferenceNumero" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="Objet" class="control-label">Objet *</label>
+                                    <textarea asp-for="Objet" class="form-control" rows="3"></textarea>
+                                    <span asp-validation-for="Objet" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <!-- Dates et correspondant -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="DateReception" class="control-label">Date de réception *</label>
+                                    <input asp-for="DateReception" type="date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                                    <span asp-validation-for="DateReception" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="HeureRecu" class="control-label">Heure de réception</label>
+                                    <input asp-for="HeureRecu" type="time" class="form-control" />
+                                    <span asp-validation-for="HeureRecu" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="CorrespondantId" class="control-label">Expéditeur *</label>
+                                    <select asp-for="CorrespondantId" class="form-control" asp-items="@(new SelectList(Model.AvailableCorrespondants, "Id", "Nom"))">
+                                        <option value="">-- Sélectionner un expéditeur --</option>
+                                    </select>
+                                    <span asp-validation-for="CorrespondantId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Classification -->
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="NatureCourrierId" class="control-label">Nature *</label>
+                                    <select asp-for="NatureCourrierId" class="form-control" asp-items="@(new SelectList(Model.AvailableNatures, "Id", "Nom"))">
+                                        <option value="">-- Sélectionner une nature --</option>
+                                    </select>
+                                    <span asp-validation-for="NatureCourrierId" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="CategorieCourrierId" class="control-label">Catégorie *</label>
+                                    <select asp-for="CategorieCourrierId" class="form-control" asp-items="@(new SelectList(Model.AvailableCategories, "Id", "Nom"))">
+                                        <option value="">-- Sélectionner une catégorie --</option>
+                                    </select>
+                                    <span asp-validation-for="CategorieCourrierId" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="ModeEnvoiId" class="control-label">Mode d'envoi *</label>
+                                    <select asp-for="ModeEnvoiId" class="form-control" asp-items="@(new SelectList(Model.AvailableModesEnvoi, "Id", "Nom"))">
+                                        <option value="">-- Sélectionner un mode --</option>
+                                    </select>
+                                    <span asp-validation-for="ModeEnvoiId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Service et classement -->
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="ServiceId" class="control-label">Service concerné *</label>
+                                    <select asp-for="ServiceId" class="form-control" asp-items="@(new SelectList(Model.AvailableServices, "Id", "Nom"))">
+                                        <option value="">-- Sélectionner un service --</option>
+                                    </select>
+                                    <span asp-validation-for="ServiceId" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="TypeDossierId" class="control-label">Type de dossier</label>
+                                    <select asp-for="TypeDossierId" class="form-control" asp-items="@(new SelectList(Model.AvailableTypeDossiers, "Id", "Nom"))">
+                                        <option value="">-- Sélectionner un type --</option>
+                                    </select>
+                                    <span asp-validation-for="TypeDossierId" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label asp-for="DossierClassementId" class="control-label">Dossier de classement</label>
+                                    <select asp-for="DossierClassementId" class="form-control" asp-items="@(new SelectList(Model.AvailableDossiers, "Id", "Nom"))">
+                                        <option value="">-- Sélectionner un dossier --</option>
+                                    </select>
+                                    <span asp-validation-for="DossierClassementId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Priorité et confidentialité -->
+                        <div class="row mt-3">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="Priorite" class="control-label">Priorité</label>
+                                    <select asp-for="Priorite" class="form-control">
+                                        <option value="0">Normal</option>
+                                        <option value="1">Urgent</option>
+                                        <option value="2">Très urgent</option>
+                                    </select>
+                                    <span asp-validation-for="Priorite" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="Confidentialite" class="control-label">Confidentialité</label>
+                                    <select asp-for="Confidentialite" class="form-control">
+                                        <option value="0">Public</option>
+                                        <option value="1">Interne</option>
+                                        <option value="2">Confidentiel</option>
+                                        <option value="3">Secret</option>
+                                    </select>
+                                    <span asp-validation-for="Confidentialite" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="UtilisateursEnCopie" class="control-label">Utilisateurs en copie</label>
+                                    <input asp-for="UtilisateursEnCopie" class="form-control" placeholder="Séparer par des virgules" />
+                                    <span asp-validation-for="UtilisateursEnCopie" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pièces jointes -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label class="control-label">Pièces jointes</label>
+                                    <input type="file" name="Attachments" multiple class="form-control-file" />
+                                    <small class="form-text text-muted">Formats acceptés: PDF, DOC, DOCX, JPG, JPEG, PNG, TIFF (max 10MB par fichier)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Boutons -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Enregistrer
+                                    </button>
+                                    <a asp-action="Index" asp-controller="Indexateur" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left"></i> Retour
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Générer un nouveau numéro d'ordre si nécessaire
+            $('#generateOrdreNumero').click(function() {
+                $.post('@Url.Action("GenerateNumeroOrdre", "CourriersEntrant")')
+                    .done(function(data) {
+                        if (data.success) {
+                            $('#OrdreNumero').val(data.numeroOrdre);
+                        }
+                    })
+                    .fail(function() {
+                        alert('Erreur lors de la génération du numéro d\'ordre');
+                    });
+            });
+
+            // Vérifier la disponibilité du numéro d'ordre
+            $('#OrdreNumero, #RegistreNumero').on('blur', function() {
+                var numeroOrdre = $('#OrdreNumero').val();
+                var numeroRegistre = $('#RegistreNumero').val();
+
+                if (numeroOrdre) {
+                    $.post('@Url.Action("CheckNumeroOrdre", "CourriersEntrant")', {
+                        NumeroOrdre: numeroOrdre,
+                        NumeroRegistre: numeroRegistre
+                    })
+                    .done(function(data) {
+                        if (!data.success) {
+                            alert(data.message);
+                        }
+                    })
+                    .fail(function() {
+                        console.log('Erreur lors de la vérification du numéro d\'ordre');
+                    });
+                }
+            });
+
+            // Validation du formulaire
+            $('#createCourrierForm').on('submit', function() {
+                var isValid = true;
+                
+                // Validation des champs obligatoires
+                $('[required]').each(function() {
+                    if (!$(this).val()) {
+                        isValid = false;
+                        $(this).addClass('is-invalid');
+                    } else {
+                        $(this).removeClass('is-invalid');
+                    }
+                });
+
+                return isValid;
+            });
+        });
+    </script>
+}

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("JconsultGC")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+17292d0241d07202683a7e50ddb2b010cfaa11c7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1a11a4a4602f8f867bbbf2e728704832c5a72c94")]
 [assembly: System.Reflection.AssemblyProductAttribute("JconsultGC")]
 [assembly: System.Reflection.AssemblyTitleAttribute("JconsultGC")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

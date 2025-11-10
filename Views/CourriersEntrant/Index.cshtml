@@ -1,0 +1,88 @@
+@model IEnumerable<JconsultGC.Models.Courrier>
+
+@{
+    ViewData["Title"] = "Tous les courriers";
+}
+
+<div class="container mt-4">
+    <h2>Tous les courriers</h2>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Liste des courriers</h5>
+                <a asp-action="Dashboard" asp-controller="Indexateur" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour au dashboard
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Numéro d'ordre</th>
+                                <th>Référence</th>
+                                <th>Objet</th>
+                                <th>Expéditeur</th>
+                                <th>Service</th>
+                                <th>Catégorie</th>
+                                <th>Date réception</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var courrier in Model)
+                            {
+                                <tr>
+                                    <td>@courrier.OrdreNumero</td>
+                                    <td>@courrier.ReferenceNumero</td>
+                                    <td>@courrier.Objet</td>
+                                    <td>@(courrier.Correspondant?.Nom ?? "Non spécifié")</td>
+                                    <td>@(courrier.Service?.Nom ?? "Non spécifié")</td>
+                                    <td>@(courrier.CategorieCourrier?.Nom ?? "Non catégorisé")</td>
+                                    <td>@courrier.DateReception?.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <span class="badge @GetStatusBadgeClass(courrier.Statut)">
+                                            @courrier.Statut
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="@Url.Action("Details", new { id = courrier.Id })" 
+                                           class="btn btn-sm btn-primary" 
+                                           title="Voir les détails">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle"></i> Aucun courrier trouvé.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(string statut)
+    {
+        return statut?.ToLower() switch
+        {
+            "a valider" => "bg-warning",
+            "validé" => "bg-success",
+            "rejeté" => "bg-danger",
+            "archivé" => "bg-secondary",
+            _ => "bg-info"
+        };
+    }
+}

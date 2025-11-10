@@ -3,6 +3,18 @@ using System.ComponentModel.DataAnnotations;
 
 namespace JconsultGC.Models
 {
+    public class ServiceOption
+    {
+        public int Id { get; set; }
+        public string Nom { get; set; } = string.Empty;
+    }
+
+    public class LookupOption
+    {
+        public int Id { get; set; }
+        public string Nom { get; set; } = string.Empty;
+    }
+
     public class CourrierCreateViewModel
     {
         [Display(Name = "N° d'ordre")]
@@ -23,6 +35,9 @@ namespace JconsultGC.Models
 
         [Display(Name = "Heure de réception")]
         public TimeSpan? HeureRecu { get; set; }
+
+        [Display(Name = "Heure de réception (texte)")]
+        public string? HeureRecuText { get; set; }
 
         [Display(Name = "Nature")]
         public int? NatureCourrierId { get; set; }
@@ -50,6 +65,8 @@ namespace JconsultGC.Models
 
         public int? ModeEnvoiId { get; set; }
 
+        public int? UserId {get; set; }
+
         public ConfidentialiteLevel Confidentialite { get; set; } = ConfidentialiteLevel.Public;
 
         public PrioriteLevel Priorite { get; set; } = PrioriteLevel.Normal;
@@ -59,5 +76,14 @@ namespace JconsultGC.Models
 
         // Whether the user has viewed/previewed the files before submitting
         public bool VisualizedBeforeSave { get; set; } = false;
+
+        // Dropdown lists
+        public List<ServiceOption> AvailableServices { get; set; } = new();
+        public List<LookupOption> AvailableCategories { get; set; } = new();
+        public List<LookupOption> AvailableNatures { get; set; } = new();
+        public List<LookupOption> AvailableModesEnvoi { get; set; } = new();
+        public List<LookupOption> AvailableCorrespondants { get; set; } = new();
+        public List<LookupOption> AvailableDossiers { get; set; } = new();
+        public List<LookupOption> AvailableTypeDossiers { get; set; } = new();
     }
 }

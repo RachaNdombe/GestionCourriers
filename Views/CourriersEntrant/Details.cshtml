@@ -1,0 +1,224 @@
+@model JconsultGC.Models.Courrier
+
+@{
+    ViewData["Title"] = "Détails du courrier";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Détails du courrier</h2>
+        <div class="d-flex gap-2">
+            @if (Model.Statut == "A valider")
+            {
+                <a asp-action="Edit" asp-controller="CourriersEntrant" asp-route-id="@Model.Id" class="btn btn-warning">
+                    <i class="bi bi-pencil"></i> Modifier le courrier
+                </a>
+                <form asp-action="SendToValidation" asp-controller="CourriersEntrant" asp-route-id="@Model.Id" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-success" onclick="return confirm('Êtes-vous sûr de vouloir envoyer ce courrier à la validation ?')">
+                        <i class="bi bi-send-check"></i> Envoyer à la validation
+                    </button>
+                </form>
+            }
+            <a asp-action="Index" asp-controller="Indexateur" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Retour au tableau de bord
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Informations générales</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="fw-bold">Numéro d'ordre:</label>
+                        <p class="form-control-plaintext">@Model.OrdreNumero</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Numéro de registre:</label>
+                        <p class="form-control-plaintext">@(Model.RegistreNumero ?? "Non spécifié")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Référence:</label>
+                        <p class="form-control-plaintext">@(Model.ReferenceNumero ?? "Non spécifié")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Objet:</label>
+                        <p class="form-control-plaintext">@Model.Objet</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="fw-bold">Date de réception:</label>
+                        <p class="form-control-plaintext">@(Model.DateReception?.ToShortDateString() ?? "Non spécifiée")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Heure de réception:</label>
+                        <p class="form-control-plaintext">@(Model.HeureRecu?.ToString() ?? "Non spécifiée")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Date d'enregistrement:</label>
+                        <p class="form-control-plaintext">@Model.DateEnregistrement.ToShortDateString() @Model.DateEnregistrement.ToShortTimeString()</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Statut:</label>
+                        <span class="badge @(Model.Statut == "A valider" ? "bg-warning" : "bg-success")">
+                            @Model.Statut
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Classification</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="fw-bold">Catégorie:</label>
+                        <p class="form-control-plaintext">@(Model.CategorieCourrier?.Nom ?? "Non spécifiée")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Nature:</label>
+                        <p class="form-control-plaintext">@(Model.NatureCourrier?.Nom ?? "Non spécifiée")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Mode d'envoi:</label>
+                        <p class="form-control-plaintext">@(Model.ModeEnvoi?.Libelle ?? "Non spécifié")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Type de dossier:</label>
+                        <p class="form-control-plaintext">@(Model.TypeDossier?.Libelle ?? "Non spécifié")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Dossier de classement:</label>
+                        <p class="form-control-plaintext">@(Model.DossierClassement?.Titre ?? "Non spécifié")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Destinataires et correspondants</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="fw-bold">Expéditeur:</label>
+                        <p class="form-control-plaintext">@(Model.Correspondant?.Nom ?? "Non spécifié")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Service concerné:</label>
+                        <p class="form-control-plaintext">@(Model.ServiceConcerne ?? "Non spécifié")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Service destinataire:</label>
+                        <p class="form-control-plaintext">@(Model.Service?.Nom ?? "Non spécifié")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Utilisateurs en copie:</label>
+                        <p class="form-control-plaintext">@(Model.UtilisateursEnCopie ?? "Aucun")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Priorité et confidentialité</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="fw-bold">Priorité:</label>
+                        <span class="badge @GetPriorityBadgeClass(Model.Priorite)">
+                            @Model.Priorite
+                        </span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Confidentialité:</label>
+                        <span class="badge @GetConfidentialityBadgeClass(Model.Confidentialite)">
+                            @Model.Confidentialite
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Pièces jointes</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Documents != null && Model.Documents.Any())
+                    {
+                        <ul class="list-group">
+                            @foreach (var document in Model.Documents)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>Document @document.Id</span>
+                                    <span class="badge bg-primary rounded-pill">Attaché</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Aucune pièce jointe</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetPriorityBadgeClass(JconsultGC.Models.PrioriteLevel priorite)
+    {
+        return priorite switch
+        {
+            JconsultGC.Models.PrioriteLevel.Basse => "bg-secondary",
+            JconsultGC.Models.PrioriteLevel.Normal => "bg-info",
+            JconsultGC.Models.PrioriteLevel.Haute => "bg-warning",
+            JconsultGC.Models.PrioriteLevel.Urgent => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+    
+    string GetConfidentialityBadgeClass(JconsultGC.Models.ConfidentialiteLevel confidentialite)
+    {
+        return confidentialite switch
+        {
+            JconsultGC.Models.ConfidentialiteLevel.Public => "bg-success",
+            JconsultGC.Models.ConfidentialiteLevel.Interne => "bg-info",
+            JconsultGC.Models.ConfidentialiteLevel.Confidentiel => "bg-warning",
+            JconsultGC.Models.ConfidentialiteLevel.TresConfidentiel => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

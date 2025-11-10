@@ -1,3 +1,4 @@
+C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\JconsultGC.sourcelink.json
 C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\bin\Debug\net9.0\appsettings.Development.json
 C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\bin\Debug\net9.0\appsettings.json
 C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\bin\Debug\net9.0\JconsultGC.staticwebassets.runtime.json
@@ -151,7 +152,6 @@ C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\Jco
 C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\JconsultGC.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\JconsultGC.RazorAssemblyInfo.cache
 C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\JconsultGC.RazorAssemblyInfo.cs
-C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\JconsultGC.sourcelink.json
 C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\rjimswa.dswa.cache.json
 C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\rjsmrazor.dswa.cache.json
 C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\rjsmcshtml.dswa.cache.json
@@ -160,6 +160,7 @@ C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\sco
 C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\scopedcss\projectbundle\JconsultGC.bundle.scp.css
 C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\compressed\vwejukxoup-b9sayid5wm.gz
 C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\compressed\was5gfffck-61n19gt1b8.gz
+C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\compressed\3xvbc8xk78-nl4hjx8oq1.gz
 C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\compressed\qzv6rpdxjw-bqjiyaj88i.gz
 C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\compressed\nk3mokptgo-c2jlpeoesf.gz
 C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\compressed\dxa6yzwdp9-erw9l3u2r3.gz
@@ -231,4 +232,3 @@ C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\ref
 C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\JconsultGC.pdb
 C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\JconsultGC.genruntimeconfig.cache
 C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\ref\JconsultGC.dll
-C:\Users\Rachel Ndombe\Documents\JconsultProject\JconsultGC\obj\Debug\net9.0\compressed\3xvbc8xk78-nl4hjx8oq1.gz

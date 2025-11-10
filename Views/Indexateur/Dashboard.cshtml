@@ -13,7 +13,9 @@
             <div class="card bg-primary text-white">
                 <div class="card-body">
                     <h5 class="card-title">Total indexés</h5>
-                    <p class="card-text display-4">@Model.TotalCourriersIndexes</p>
+                    <a href="@Url.Action("Index", "CourriersEntrant")" class="text-white text-decoration-none">
+                        <p class="card-text display-4">@Model.TotalCourriersIndexes</p>
+                    </a>
                 </div>
             </div>
         </div>
@@ -44,11 +46,12 @@
     </div>
 
     <div class="row mt-4">
-        <!-- Recent Actions -->
-        <div class="col-md-6">
+        <!-- Recent Actions (Today only) -->
+        <div class="col-md-4">
             <div class="card">
                 <div class="card-header">
-                    <h5>Mes actions récentes</h5>
+                    <h5>Actions d'aujourd'hui</h5>
+                    <small class="text-muted">@DateTime.Today.ToString("dd/MM/yyyy")</small>
                 </div>
                 <div class="card-body">
                     <div class="list-group">
@@ -59,7 +62,7 @@
                                 <a href="@Url.Action("Details", "CourriersEntrant", new { id = action.CourrierId })" class="list-group-item list-group-item-action">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1">@action.Action</h6>
-                                        <small>@action.Timestamp.ToString("dd/MM/yyyy HH:mm")</small>
+                                        <small>@action.Timestamp.ToString("HH:mm")</small>
                                     </div>
                                     <p class="mb-1">@action.Note</p>
                                 </a>
@@ -76,11 +79,47 @@
             </div>
         </div>
 
-        <!-- Courriers à valider -->
-        <div class="col-md-6">
+        <!-- Courriers récents créés par cet indexateur -->
+        <div class="col-md-4">
             <div class="card">
                 <div class="card-header">
-                    <h5>Courriers à valider</h5>
+                    <h5>Mes courriers récents</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        @if (Model.RecentCourriers != null && Model.RecentCourriers.Any())
+                        {
+                            @foreach (var courrier in Model.RecentCourriers)
+                            {
+                                <a href="@Url.Action("Details", "CourriersEntrant", new { id = courrier.Id })" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">@courrier.ReferenceNumero</h6>
+                                        <small>@courrier.DateEnregistrement.ToString("dd/MM/yyyy")</small>
+                                    </div>
+                                    <p class="mb-1">@courrier.Objet</p>
+                                    <small>
+                                        <span class="badge @GetStatusBadgeClass(courrier.Statut)">@courrier.Statut</span>
+                                        - @(courrier.CategorieCourrier?.Nom ?? "Non catégorisé")
+                                    </small>
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            <div class="list-group-item text-center text-muted">
+                                Aucun courrier créé
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Courriers à valider -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Courriers en attente de validation</h5>
                 </div>
                 <div class="card-body">
                     <div class="list-group">
@@ -124,6 +163,21 @@
         </div>
     </div>
 </div>
+
+@functions {
+    string GetStatusBadgeClass(string statut)
+    {
+        return statut?.ToLower() switch
+        {
+            "a valider" => "bg-warning",
+            "validé" => "bg-success",
+            "rejeté" => "bg-danger",
+            "archivé" => "bg-secondary",
+            "a saisir" => "bg-info",
+            _ => "bg-light text-dark"
+        };
+    }
+}
 
 @section Scripts {
     <script>

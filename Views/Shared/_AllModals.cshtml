@@ -63,10 +63,28 @@
     </div>
 </div>
 
+<!-- Modal pour ModeEnvoi -->
+<div class="modal fade" id="modeEnvoiModal" tabindex="-1" aria-labelledby="modeEnvoiModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modeEnvoiModalLabel">Nouveau Mode d'Envoi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            @await Html.PartialAsync("_ModeEnvoiForm", new JconsultGC.Models.ModeEnvoi())
+        </div>
+    </div>
+</div>
+
 <script>
 // Fonctions utilitaires pour ouvrir les modaux
 function openCorrespondantModal() {
     const modal = new bootstrap.Modal(document.getElementById('correspondantModal'));
+    modal.show();
+}
+
+function openModeEnvoiModal() {
+    const modal = new bootstrap.Modal(document.getElementById('modeEnvoiModal'));
     modal.show();
 }
 
@@ -120,6 +138,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnAddDossierClassement = document.getElementById('btnAddDossierClassement');
     if (btnAddDossierClassement) {
         btnAddDossierClassement.addEventListener('click', openDossierClassementModal);
+    }
+
+    // Bouton pour ajouter un mode d'envoi
+    const btnAddModeEnvoi = document.getElementById('btnAddModeEnvoi');
+    if (btnAddModeEnvoi) {
+        btnAddModeEnvoi.addEventListener('click', openModeEnvoiModal);
     }
 });
 </script>

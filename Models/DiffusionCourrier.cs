@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace JconsultGC.Models
 {
-    public class Document
+    public class DiffusionCourrier
     {
         [Key]
         public int Id { get; set; }
@@ -11,10 +11,13 @@ namespace JconsultGC.Models
         public int CourrierId { get; set; }
         public virtual Courrier? Courrier { get; set; }
 
-        public string NomFichier { get; set; } = string.Empty;
-        public string StoragePath { get; set; } = string.Empty;
-        public string MimeType { get; set; } = string.Empty;
-        public long Taille { get; set; }
+        public int? ServiceId { get; set; }
+        public virtual Service? Service { get; set; }
+
+        public string? UserDiffId { get; set; }
+        public virtual User? UserDiff { get; set; }
+
+        public string? Commentaire { get; set; }
 
         public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
     }

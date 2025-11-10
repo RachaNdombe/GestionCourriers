@@ -30,6 +30,52 @@ namespace JconsultGC.Controllers
             _logger = logger;
         }
 
+        // GET: CourriersEntrant/Index
+        [Authorize(Roles = "Indexateur")]
+        public async Task<IActionResult> Index()
+        {
+            var courriers = await _context.Courriers!
+                .Include(c => c.CategorieCourrier)
+                .Include(c => c.NatureCourrier)
+                .Include(c => c.ModeEnvoi)
+                .Include(c => c.Correspondant)
+                .Include(c => c.Service)
+                .Include(c => c.TypeDossier)
+                .Include(c => c.DossierClassement)
+                .OrderByDescending(c => c.DateEnregistrement)
+                .ToListAsync();
+
+            return View(courriers);
+        }
+
+        // GET: CourriersEntrant/Details/5
+        [Authorize(Roles = "Indexateur")]
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var courrier = await _context.Courriers!
+                .Include(c => c.CategorieCourrier)
+                .Include(c => c.NatureCourrier)
+                .Include(c => c.ModeEnvoi)
+                .Include(c => c.Correspondant)
+                .Include(c => c.Service)
+                .Include(c => c.TypeDossier)
+                .Include(c => c.DossierClassement)
+                .Include(c => c.Documents)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (courrier == null)
+            {
+                return NotFound();
+            }
+
+            return View(courrier);
+        }
+
         // GET: CourriersEntrant/Create
         [Authorize(Roles = "Indexateur")]
         public async Task<IActionResult> Create()
@@ -37,45 +83,47 @@ namespace JconsultGC.Controllers
             // Générer automatiquement le numéro d'ordre
             var numeroOrdre = await GenererNumeroOrdreAsync();
             
-            var viewModel = new CreateCourrierViewModel
+            var viewModel = new CourrierCreateViewModel
             {
                 OrdreNumero = numeroOrdre,
                 DateReception = DateTime.Now,
-                AvailableServices = await _context.Services!.Where(s => s.Actif).Select(s => new ServiceOption
+                AvailableServices = await _context.Services!.Where(s => s.Actif).Select(s => new JconsultGC.Models.ServiceOption
                 {
                     Id = s.Id,
                     Nom = s.Nom
-                }).ToListAsync() ?? new List<ServiceOption>(),
-                AvailableCategories = await _context.CategorieCourriers!.Select(c => new LookupOption
+                }).ToListAsync() ?? new List<JconsultGC.Models.ServiceOption>(),
+                AvailableCategories = await _context.CategorieCourriers!.Select(c => new JconsultGC.Models.LookupOption
                 {
                     Id = c.Id,
                     Nom = c.Nom
-                }).ToListAsync() ?? new List<LookupOption>(),
-                AvailableNatures = await _context.NatureCourriers!.Select(n => new LookupOption
+                }).ToListAsync() ?? new List<JconsultGC.Models.LookupOption>(),
+                AvailableNatures = await _context.NatureCourriers!.Select(n => new JconsultGC.Models.LookupOption
                 {
                     Id = n.Id,
                     Nom = n.Nom
-                }).ToListAsync() ?? new List<LookupOption>(),
-                AvailableModesEnvoi = await _context.ModeEnvois!.Select(m => new LookupOption
+                }).ToListAsync() ?? new List<JconsultGC.Models.LookupOption>(),
+                AvailableModesEnvoi = await _context.ModeEnvois!.Select(m => new JconsultGC.Models.LookupOption
                 {
                     Id = m.Id,
                     Nom = m.Libelle
-                }).ToListAsync() ?? new List<LookupOption>(),
-                AvailableCorrespondants = await _context.Correspondants!.Select(c => new LookupOption
+                }).ToListAsync() ?? new List<JconsultGC.Models.LookupOption>(),
+                AvailableCorrespondants = await _context.Correspondants!.Select(c => new JconsultGC.Models.LookupOption
                 {
                     Id = c.Id,
                     Nom = c.Nom
-                }).ToListAsync() ?? new List<LookupOption>(),
-                AvailableDossiers = await _context.DossierClassements!.Select(d => new LookupOption
+                }).ToListAsync() ?? new List<JconsultGC.Models.LookupOption>(),
+                AvailableDossiers = await _context.DossierClassements!.Select(d => new JconsultGC.Models.LookupOption
                 {
                     Id = d.Id,
                     Nom = d.Titre
-                }).ToListAsync() ?? new List<LookupOption>(),
-                AvailableTypeDossiers = await _context.TypeDossiers!.Select(t => new LookupOption
+                }).ToListAsync() ?? new List<JconsultGC.Models.LookupOption>(),
+                AvailableTypeDossiers = await _context.TypeDossiers!.Select(t => new JconsultGC.Models.LookupOption
                 {
                     Id = t.Id,
                     Nom = t.Libelle ?? "Sans libellé"
-                }).ToListAsync() ?? new List<LookupOption>()
+                }).ToListAsync() ?? new List<JconsultGC.Models.LookupOption>(),
+
+               
             };
 
             return View(viewModel);
@@ -85,7 +133,7 @@ namespace JconsultGC.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Indexateur")]
-        public async Task<IActionResult> Create(CreateCourrierViewModel model)
+        public async Task<IActionResult> Create(CourrierCreateViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -131,7 +179,7 @@ namespace JconsultGC.Controllers
                     ReferenceNumero = model.ReferenceNumero,
                     Objet = model.Objet,
                     DateReception = model.DateReception,
-                    HeureRecu = string.IsNullOrEmpty(model.HeureRecu) ? null : TimeSpan.Parse(model.HeureRecu),
+                   HeureRecu = model.HeureRecu.HasValue ? model.HeureRecu.Value : (TimeSpan?)null,
                     ServiceConcerne = model.ServiceConcerne,
                     UtilisateursEnCopie = model.UtilisateursEnCopie,
                     CorrespondantId = model.CorrespondantId,
@@ -184,12 +232,7 @@ namespace JconsultGC.Controllers
 
                             var document = new Document
                             {
-                                FileName = file.FileName,
-                                ContentType = file.ContentType,
-                                FileSize = file.Length,
-                                FilePath = Path.Combine("/uploads/courriers", fileName).Replace("\\", "/"),
-                                CourrierId = courrier.Id,
-                                UploadedAt = DateTime.UtcNow
+                                CourrierId = courrier.Id
                             };
 
                             _context.Documents!.Add(document);
@@ -390,85 +433,299 @@ namespace JconsultGC.Controllers
             throw new InvalidOperationException("Aucun service actif n'est disponible. Veuillez créer au moins un service.");
         }
 
-        private async Task RechargerDonneesFormulaire(CreateCourrierViewModel model)
+        private async Task RechargerDonneesFormulaire(CourrierCreateViewModel model)
         {
-            model.AvailableServices = await _context.Services!.Where(s => s.Actif).Select(s => new ServiceOption
+            model.AvailableServices = await _context.Services!.Where(s => s.Actif).Select(s => new JconsultGC.Models.ServiceOption
             {
                 Id = s.Id,
                 Nom = s.Nom
-            }).ToListAsync() ?? new List<ServiceOption>();
-            model.AvailableCategories = await _context.CategorieCourriers!.Select(c => new LookupOption
+            }).ToListAsync() ?? new List<JconsultGC.Models.ServiceOption>();
+            model.AvailableCategories = await _context.CategorieCourriers!.Select(c => new JconsultGC.Models.LookupOption
             {
                 Id = c.Id,
                 Nom = c.Nom
-            }).ToListAsync() ?? new List<LookupOption>();
-            model.AvailableNatures = await _context.NatureCourriers!.Select(n => new LookupOption
+            }).ToListAsync() ?? new List<JconsultGC.Models.LookupOption>();
+            model.AvailableNatures = await _context.NatureCourriers!.Select(n => new JconsultGC.Models.LookupOption
             {
                 Id = n.Id,
                 Nom = n.Nom
-            }).ToListAsync() ?? new List<LookupOption>();
-            model.AvailableModesEnvoi = await _context.ModeEnvois!.Select(m => new LookupOption
+            }).ToListAsync() ?? new List<JconsultGC.Models.LookupOption>();
+            model.AvailableModesEnvoi = await _context.ModeEnvois!.Select(m => new JconsultGC.Models.LookupOption
             {
                 Id = m.Id,
                 Nom = m.Libelle
-            }).ToListAsync() ?? new List<LookupOption>();
-            model.AvailableCorrespondants = await _context.Correspondants!.Select(c => new LookupOption
+            }).ToListAsync() ?? new List<JconsultGC.Models.LookupOption>();
+            model.AvailableCorrespondants = await _context.Correspondants!.Select(c => new JconsultGC.Models.LookupOption
             {
                 Id = c.Id,
                 Nom = c.Nom
-            }).ToListAsync() ?? new List<LookupOption>();
-            model.AvailableDossiers = await _context.DossierClassements!.Select(d => new LookupOption
+            }).ToListAsync() ?? new List<JconsultGC.Models.LookupOption>();
+            model.AvailableDossiers = await _context.DossierClassements!.Select(d => new JconsultGC.Models.LookupOption
             {
                 Id = d.Id,
                 Nom = d.Titre
-            }).ToListAsync() ?? new List<LookupOption>();
-            model.AvailableTypeDossiers = await _context.TypeDossiers!.Select(t => new LookupOption
+            }).ToListAsync() ?? new List<JconsultGC.Models.LookupOption>();
+            model.AvailableTypeDossiers = await _context.TypeDossiers!.Select(t => new JconsultGC.Models.LookupOption
             {
                 Id = t.Id,
                 Nom = t.Libelle ?? "Sans libellé"
-            }).ToListAsync() ?? new List<LookupOption>();
+            }).ToListAsync() ?? new List<JconsultGC.Models.LookupOption>();
         }
-    }
 
-    // ViewModels pour CourriersEntrant
-    public class CreateCourrierViewModel
-    {
-        public string OrdreNumero { get; set; } = string.Empty;
-        public string? RegistreNumero { get; set; }
-        public string? ReferenceNumero { get; set; }
-        public string Objet { get; set; } = string.Empty;
-        public DateTime DateReception { get; set; }
-        public string? HeureRecu { get; set; }
-        public string? ServiceConcerne { get; set; }
-        public string? UtilisateursEnCopie { get; set; }
-        public int? CorrespondantId { get; set; }
-        public int? ServiceId { get; set; }
-        public int? CategorieCourrierId { get; set; }
-        public int? ModeEnvoiId { get; set; }
-        public int? NatureCourrierId { get; set; }
-        public int? TypeDossierId { get; set; }
-        public int? DossierClassementId { get; set; }
-        public int Confidentialite { get; set; }
-        public int Priorite { get; set; }
-        public List<ServiceOption> AvailableServices { get; set; } = new();
-        public List<LookupOption> AvailableCategories { get; set; } = new();
-        public List<LookupOption> AvailableNatures { get; set; } = new();
-        public List<LookupOption> AvailableModesEnvoi { get; set; } = new();
-        public List<LookupOption> AvailableCorrespondants { get; set; } = new();
-        public List<LookupOption> AvailableDossiers { get; set; } = new();
-        public List<LookupOption> AvailableTypeDossiers { get; set; } = new();
+        // GET: CourriersEntrant/Edit/5
+        [Authorize(Roles = "Indexateur")]
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var courrier = await _context.Courriers!
+                .Include(c => c.CategorieCourrier)
+                .Include(c => c.NatureCourrier)
+                .Include(c => c.ModeEnvoi)
+                .Include(c => c.Correspondant)
+                .Include(c => c.Service)
+                .Include(c => c.TypeDossier)
+                .Include(c => c.DossierClassement)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (courrier == null)
+            {
+                return NotFound();
+            }
+
+            // Vérifier que l'utilisateur peut modifier ce courrier (créé par lui-même)
+            var user = await _userManager.GetUserAsync(User);
+            if (courrier.CreatedById != user?.Id)
+            {
+                return Forbid();
+            }
+
+            var viewModel = new CourrierCreateViewModel
+            {
+                OrdreNumero = courrier.OrdreNumero,
+                RegistreNumero = courrier.RegistreNumero,
+                ReferenceNumero = courrier.ReferenceNumero,
+                Objet = courrier.Objet,
+                DateReception = courrier.DateReception,
+                HeureRecu = courrier.HeureRecu,
+                ServiceConcerne = courrier.ServiceConcerne,
+                UtilisateursEnCopie = courrier.UtilisateursEnCopie,
+                CorrespondantId = courrier.CorrespondantId,
+                ServiceId = courrier.ServiceId,
+                CategorieCourrierId = courrier.CategorieCourrierId,
+                ModeEnvoiId = courrier.ModeEnvoiId,
+                NatureCourrierId = courrier.NatureCourrierId,
+                TypeDossierId = courrier.TypeDossierId,
+                DossierClassementId = courrier.DossierClassementId,
+                Confidentialite = courrier.Confidentialite,
+                Priorite = courrier.Priorite,
+                AvailableServices = await _context.Services!.Where(s => s.Actif).Select(s => new JconsultGC.Models.ServiceOption
+                {
+                    Id = s.Id,
+                    Nom = s.Nom
+                }).ToListAsync() ?? new List<JconsultGC.Models.ServiceOption>(),
+                AvailableCategories = await _context.CategorieCourriers!.Select(c => new JconsultGC.Models.LookupOption
+                {
+                    Id = c.Id,
+                    Nom = c.Nom
+                }).ToListAsync() ?? new List<JconsultGC.Models.LookupOption>(),
+                AvailableNatures = await _context.NatureCourriers!.Select(n => new JconsultGC.Models.LookupOption
+                {
+                    Id = n.Id,
+                    Nom = n.Nom
+                }).ToListAsync() ?? new List<JconsultGC.Models.LookupOption>(),
+                AvailableModesEnvoi = await _context.ModeEnvois!.Select(m => new JconsultGC.Models.LookupOption
+                {
+                    Id = m.Id,
+                    Nom = m.Libelle
+                }).ToListAsync() ?? new List<JconsultGC.Models.LookupOption>(),
+                AvailableCorrespondants = await _context.Correspondants!.Select(c => new JconsultGC.Models.LookupOption
+                {
+                    Id = c.Id,
+                    Nom = c.Nom
+                }).ToListAsync() ?? new List<JconsultGC.Models.LookupOption>(),
+                AvailableDossiers = await _context.DossierClassements!.Select(d => new JconsultGC.Models.LookupOption
+                {
+                    Id = d.Id,
+                    Nom = d.Titre
+                }).ToListAsync() ?? new List<JconsultGC.Models.LookupOption>(),
+                AvailableTypeDossiers = await _context.TypeDossiers!.Select(t => new JconsultGC.Models.LookupOption
+                {
+                    Id = t.Id,
+                    Nom = t.Libelle ?? "Sans libellé"
+                }).ToListAsync() ?? new List<JconsultGC.Models.LookupOption>(),
+            };
+
+            ViewBag.CourrierId = id;
+            return View(viewModel);
+        }
+
+        // POST: CourriersEntrant/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Indexateur")]
+        public async Task<IActionResult> Edit(int id, CourrierCreateViewModel model)
+        {
+            if (id <= 0)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                var courrier = await _context.Courriers!.FindAsync(id);
+                if (courrier == null)
+                {
+                    return NotFound();
+                }
+
+                // Vérifier que l'utilisateur peut modifier ce courrier (créé par lui-même)
+                var user = await _userManager.GetUserAsync(User);
+                if (courrier.CreatedById != user?.Id)
+                {
+                    return Forbid();
+                }
+
+                // Vérifier si la combinaison OrdreNumero + RegistreNumero existe déjà (pour un autre courrier)
+                var numeroRegistre = model.RegistreNumero ?? "";
+                var existingCourrier = await _context.Courriers!
+                    .FirstOrDefaultAsync(c => c.OrdreNumero == model.OrdreNumero &&
+                                            c.RegistreNumero == numeroRegistre &&
+                                            c.Id != id);
+
+                if (existingCourrier != null)
+                {
+                    ModelState.AddModelError("OrdreNumero",
+                        $"Un courrier avec le numéro d'ordre '{model.OrdreNumero}' et le numéro de registre '{numeroRegistre}' existe déjà. Veuillez utiliser un numéro différent.");
+                    
+                    await RechargerDonneesFormulaire(model);
+                    return View(model);
+                }
+
+                // Mettre à jour les propriétés
+                courrier.OrdreNumero = model.OrdreNumero;
+                courrier.RegistreNumero = model.RegistreNumero ?? "";
+                courrier.ReferenceNumero = model.ReferenceNumero;
+                courrier.Objet = model.Objet;
+                courrier.DateReception = model.DateReception;
+                courrier.HeureRecu = model.HeureRecu.HasValue ? model.HeureRecu.Value : (TimeSpan?)null;
+                courrier.ServiceConcerne = model.ServiceConcerne;
+                courrier.UtilisateursEnCopie = model.UtilisateursEnCopie;
+                courrier.CorrespondantId = model.CorrespondantId;
+                courrier.ServiceId = model.ServiceId;
+                courrier.CategorieCourrierId = model.CategorieCourrierId;
+                courrier.ModeEnvoiId = model.ModeEnvoiId;
+                courrier.NatureCourrierId = model.NatureCourrierId;
+                courrier.TypeDossierId = model.TypeDossierId;
+                courrier.DossierClassementId = model.DossierClassementId;
+                courrier.Confidentialite = (ConfidentialiteLevel)model.Confidentialite;
+                courrier.Priorite = (PrioriteLevel)model.Priorite;
+
+                try
+                {
+                    _context.Courriers!.Update(courrier);
+                    await _context.SaveChangesAsync();
+
+                    // Ajouter l'historique
+                    var hist = new CourrierHistory
+                    {
+                        CourrierId = courrier.Id,
+                        UserId = user!.Id,
+                        Action = "Modifié",
+                        Note = "Courrier modifié par l'indexateur",
+                        Timestamp = DateTime.UtcNow
+                    };
+                    _context.CourrierHistories!.Add(hist);
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "Courrier modifié avec succès !";
+                    return RedirectToAction("Details", new { id = courrier.Id });
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!CourrierExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Erreur lors de la modification du courrier");
+                    ModelState.AddModelError("", "Une erreur inattendue s'est produite lors de la modification. Veuillez réessayer.");
+                }
+            }
+
+            await RechargerDonneesFormulaire(model);
+            return View(model);
+        }
+
+        // POST: CourriersEntrant/SendToValidation/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Indexateur")]
+        public async Task<IActionResult> SendToValidation(int id)
+        {
+            var courrier = await _context.Courriers!.FindAsync(id);
+            if (courrier == null)
+            {
+                return NotFound();
+            }
+
+            // Vérifier que l'utilisateur peut modifier ce courrier (créé par lui-même)
+            var user = await _userManager.GetUserAsync(User);
+            if (courrier.CreatedById != user?.Id)
+            {
+                return Forbid();
+            }
+
+            // Mettre à jour le statut
+            courrier.Statut = "A valider";
+
+            try
+            {
+                _context.Courriers!.Update(courrier);
+                await _context.SaveChangesAsync();
+
+                // Ajouter l'historique
+                var hist = new CourrierHistory
+                {
+                    CourrierId = courrier.Id,
+                    UserId = user!.Id,
+                    Action = "Envoyé à validation",
+                    Note = "Courrier envoyé à la validation par l'indexateur",
+                    Timestamp = DateTime.UtcNow
+                };
+                _context.CourrierHistories!.Add(hist);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Courrier envoyé à la validation avec succès !";
+                return RedirectToAction("Details", new { id = courrier.Id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de l'envoi à la validation du courrier");
+                TempData["ErrorMessage"] = "Erreur lors de l'envoi à la validation. Veuillez réessayer.";
+                return RedirectToAction("Details", new { id = courrier.Id });
+            }
+        }
+
+        private bool CourrierExists(int id)
+        {
+            return _context.Courriers!.Any(e => e.Id == id);
+        }
     }
 
     public class CheckNumeroOrdreRequest
     {
         public string NumeroOrdre { get; set; } = string.Empty;
         public string? NumeroRegistre { get; set; }
-    }
-
-    public class ServiceOption
-    {
-        public int Id { get; set; }
-        public string Nom { get; set; } = string.Empty;
     }
 
 }

@@ -1,13 +1,15 @@
-@model JconsultGC.Controllers.CreateCourrierViewModel
+@model JconsultGC.Models.CourrierCreateViewModel
 
 @{
     ViewData["Title"] = "Saisir un courrier";
 }
 
-
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
 <div class="container mt-4">
     <h2>Saisir un courrier entrant</h2>
@@ -65,7 +67,7 @@
                 <div class="form-group mb-3">
                     <label>Mode d'envoi</label>
                     <div class="d-flex gap-2 align-items-center">
-                        <select asp-for="ModeEnvoiId" class="form-control" id="modeEnvoiSelect">
+                        <select asp-for="ModeEnvoiId" class="form-control" id="ModeEnvoiId">
                             <option value=""></option>
                             @foreach (var mode in Model.AvailableModesEnvoi)
                             {
@@ -158,16 +160,28 @@
                             <label class="form-check-label" for="visualizedCheckbox">J'ai visualisé le dossier sélectionné</label>
                         </div>
                     </div>
+                </div>
 
                 <div class="form-group">
                     <label>Service concerné</label>
-                    <select asp-for="ServiceConcerne" class="form-control">
+                    <select asp-for="ServiceConcerne" class="form-control" id="ServiceConcerne">
                         <option value=""></option>
-                        @foreach (var service in Model.AvailableServices)
+                        @if (Model.AvailableServices != null && Model.AvailableServices.Any())
                         {
-                            <option value="@service.Nom">@service.Nom</option>
+                            @foreach (var service in Model.AvailableServices)
+                            {
+                                <option value="@service.Nom">@service.Nom</option>
+                            }
+                        }
+                        else
+                        {
+                            <option value="">Aucun service disponible</option>
                         }
                     </select>
+                    @if (Model.AvailableServices != null)
+                    {
+                        <small class="form-text text-muted">@Model.AvailableServices.Count services disponibles</small>
+                    }
                 </div>
 
                 <div class="form-group">
@@ -185,7 +199,7 @@
                                 <option value="@correspondant.Id">@correspondant.Nom</option>
                             }
                         </select>
-                        <button type="button" class="btn btn-primary" id="btnNewCorrespondant">
+                        <button type="button" class="btn btn-primary" id="btnAddCorrespondant">
                             <i class="bi bi-plus-circle"></i> Nouveau
                         </button>
                     </div>
@@ -193,315 +207,21 @@
 
                 <div class="form-group">
                     <label>Service destinataire</label>
-                    <select asp-for="ServiceId" class="form-control">
+                    <select asp-for="ServiceId" class="form-control" id="ServiceId">
                         <option value=""></option>
-                        @foreach (var service in Model.AvailableServices)
+                        @if (Model.AvailableServices != null && Model.AvailableServices.Any())
                         {
-                            <option value="@service.Id">@service.Nom</option>
+                            @foreach (var service in Model.AvailableServices)
+                            {
+                                <option value="@service.Id">@service.Nom</option>
+                            }
+                        }
+                        else
+                        {
+                            <option value="">Aucun service disponible</option>
                         }
                     </select>
                 </div>
-
-<!-- Modal pour nouveau mode d'envoi -->
-<div class="modal fade" id="modeEnvoiModal" tabindex="-1" aria-labelledby="modeEnvoiModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modeEnvoiModalLabel">Nouveau Mode d'Envoi</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="modeEnvoiForm" class="needs-validation" novalidate>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Code *</label>
-                            <input type="text" name="Code" class="form-control" required />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Ordre</label>
-                            <input type="number" name="Ordre" class="form-control" value="0" />
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Libellé *</label>
-                            <input type="text" name="Libelle" class="form-control" required />
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Description</label>
-                            <textarea name="Description" class="form-control" rows="2"></textarea>
-                        </div>
-                        <div class="col-12">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="Actif" checked />
-                                <label class="form-check-label">Actif</label>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="submit" class="btn btn-primary" id="btnSaveModeEnvoi">
-                    <i class="fas fa-save me-1"></i> Enregistrer
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- type d'expéditeur -->
-<div class="modal fade" id="correspondantTypeModal" tabindex="-1" aria-labelledby="correspondantTypeModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="correspondantTypeModalLabel">Type d'expéditeur</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <div class="row">
-                    <div class="col-6">
-                        <button type="button" class="btn btn-outline-primary w-100 h-100 p-3" id="btnPersonne">
-                            <i class="bi bi-person-fill fs-1"></i>
-                            <div class="mt-2">Personne</div>
-                        </button>
-                    </div>
-                    <div class="col-6">
-                        <button type="button" class="btn btn-outline-success w-100 h-100 p-3" id="btnSociete">
-                            <i class="bi bi-building fs-1"></i>
-                            <div class="mt-2">Société</div>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal pour formulaire Personne -->
-<div class="modal fade" id="personneModal" tabindex="-1" aria-labelledby="personneModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="personneModalLabel">Nouvelle Personne</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="personneForm" class="needs-validation" novalidate>
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label class="form-label">Civilité</label>
-                            <select name="civilite" class="form-control">
-                                <option value=""></option>
-                                <option value="M.">M.</option>
-                                <option value="Mme">Mme</option>
-                                <option value="Mlle">Mlle</option>
-                                <option value="Dr">Dr</option>
-                            </select>
-                        </div>
-                        <div class="col-md-8">
-                            <label class="form-label">Nom complet *</label>
-                            <input type="text" name="nom" class="form-control" required />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Email</label>
-                            <input type="email" name="email" class="form-control" />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Téléphone</label>
-                            <input type="tel" name="contact1" class="form-control" />
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Adresse</label>
-                            <textarea name="adresse" class="form-control" rows="2"></textarea>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Ville</label>
-                            <input type="text" name="ville" class="form-control" />
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Code postal</label>
-                            <input type="text" name="codePostal" class="form-control" />
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Pays</label>
-                            <select class="form-control" id="paysPersonne" name="pays" style="width: 100%;">
-                                <option value=""></option>
-                                <option>Algérie</option>
-                                <option>Angola</option>
-                                <option>Bénin</option>
-                                <option>Botswana</option>
-                                <option>Burkina Faso</option>
-                                <option>Burundi</option>
-                                <option>Cabo Verde</option>
-                                <option >Cameroun</option>
-                                <option>Centrafrique</option>
-                                <option>Comores</option>
-                                <option>Congo</option>
-                                <option selected>Congo (RDC)</option>
-                                <option>Côte d'Ivoire</option>
-                                <option>Djibouti</option>
-                                <option>Égypte</option>
-                                <option>Érythrée</option>
-                                <option>Eswatini</option>
-                                <option>Éthiopie</option>
-                                <option>Gabon</option>
-                                <option>Gambie</option>
-                                <option>Ghana</option>
-                                <option>Guinée</option>
-                                <option>Guinée-Bissau</option>
-                                <option>Guinée équatoriale</option>
-                                <option>Kenya</option>
-                                <option>Lesotho</option>
-                                <option>Liberia</option>
-                                <option>Libye</option>
-                                <option>Madagascar</option>
-                                <option>Malawi</option>
-                                <option>Mali</option>
-                                <option>Maroc</option>
-                                <option>Maurice</option>
-                                <option>Mauritanie</option>
-                                <option>Mozambique</option>
-                                <option>Namibie</option>
-                                <option>Niger</option>
-                                <option>Nigeria</option>
-                                <option>Ouganda</option>
-                                <option>Rwanda</option>
-                                <option>Sao Tomé-et-Principe</option>
-                                <option>Sénégal</option>
-                                <option>Seychelles</option>
-                                <option>Sierra Leone</option>
-                                <option>Somalie</option>
-                                <option>Soudan</option>
-                                <option>Soudan du Sud</option>
-                                <option>Tanzanie</option>
-                                <option>Tchad</option>
-                                <option>Togo</option>
-                                <option>Tunisie</option>
-                                <option>Zambie</option>
-                                <option>Zimbabwe</option>
-                            </select>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-               <button type="submit" class="btn btn-primary" id="btnSavePersonne">
-            <i class="fas fa-save me-1"></i> Enregistrer
-        </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal pour formulaire Société -->
-<div class="modal fade" id="societeModal" tabindex="-1" aria-labelledby="societeModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="societeModalLabel">Nouvelle Société</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="societeForm" class="needs-validation" novalidate>
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <label class="form-label">Nom de la société *</label>
-                            <input type="text" name="nomOrg" class="form-control" required />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Email</label>
-                            <input type="email" name="email" class="form-control" />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Téléphone</label>
-                            <input type="tel" name="contact1" class="form-control" />
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Adresse</label>
-                            <textarea name="adresse" class="form-control" rows="2"></textarea>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Ville</label>
-                            <input type="text" name="ville" class="form-control" />
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Code postal</label>
-                            <input type="text" name="codePostal" class="form-control" />
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Pays</label>
-                            <select class="form-control" id="paysSociete" name="pays" style="width: 100%;">
-                                <option value="">-- Sélectionner un pays --</option>
-                                <option>Algérie</option>
-                                <option>Angola</option>
-                                <option>Bénin</option>
-                                <option>Botswana</option>
-                                <option>Burkina Faso</option>
-                                <option>Burundi</option>
-                                <option>Cabo Verde</option>
-                                <option selected>Cameroun</option>
-                                <option>Centrafrique</option>
-                                <option>Comores</option>
-                                <option>Congo</option>
-                                <option>Congo (RDC)</option>
-                                <option>Côte d'Ivoire</option>
-                                <option>Djibouti</option>
-                                <option>Égypte</option>
-                                <option>Érythrée</option>
-                                <option>Eswatini</option>
-                                <option>Éthiopie</option>
-                                <option>Gabon</option>
-                                <option>Gambie</option>
-                                <option>Ghana</option>
-                                <option>Guinée</option>
-                                <option>Guinée-Bissau</option>
-                                <option>Guinée équatoriale</option>
-                                <option>Kenya</option>
-                                <option>Lesotho</option>
-                                <option>Liberia</option>
-                                <option>Libye</option>
-                                <option>Madagascar</option>
-                                <option>Malawi</option>
-                                <option>Mali</option>
-                                <option>Maroc</option>
-                                <option>Maurice</option>
-                                <option>Mauritanie</option>
-                                <option>Mozambique</option>
-                                <option>Namibie</option>
-                                <option>Niger</option>
-                                <option>Nigeria</option>
-                                <option>Ouganda</option>
-                                <option>Rwanda</option>
-                                <option>Sao Tomé-et-Principe</option>
-                                <option>Sénégal</option>
-                                <option>Seychelles</option>
-                                <option>Sierra Leone</option>
-                                <option>Somalie</option>
-                                <option>Soudan</option>
-                                <option>Soudan du Sud</option>
-                                <option>Tanzanie</option>
-                                <option>Tchad</option>
-                                <option>Togo</option>
-                                <option>Tunisie</option>
-                                <option>Zambie</option>
-                                <option>Zimbabwe</option>
-                            </select>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-              <button type="submit" class="btn btn-primary" id="btnSaveSociete">
-            <i class="fas fa-save me-1"></i> Enregistrer
-        </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Inclusion de tous les modaux -->
-@await Html.PartialAsync("_AllModals")
 
                 <div class="form-group">
                     <label>Pièces jointes</label>
@@ -537,28 +257,33 @@
             </div>
         </div>
 
-        <div class="mt-3">
-            <button type="submit" class="btn btn-primary" id="submitBtn">Enregistrer</button>
-            <a asp-action="Dashboard" class="btn btn-secondary">Retour</a>
+        <!-- Buttons positioned at the bottom of the form -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="d-flex gap-2 justify-content-end">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">Enregistrer</button>
+                    <a asp-action="Dashboard" class="btn btn-secondary">Retour</a>
+                </div>
+            </div>
         </div>
     </form>
 </div>
 
+<!-- Inclusion de tous les modaux -->
+@await Html.PartialAsync("_AllModals")
+
+<style>
+    #submitBtn {
+        position: relative;
+        z-index: 1000;
+        cursor: pointer;
+    }
+</style>
+
 @section Scripts {
     <script>
-        // Initialisation des Select2 pour les pays
+        // Gestion de l'affichage du dossier sélectionné (optionnel)
         $(document).ready(function() {
-            $('#paysPersonne').select2({
-                placeholder: "Rechercher un pays d'Afrique",
-                allowClear: true
-            });
-            
-            $('#paysSociete').select2({
-                placeholder: "Rechercher un pays d'Afrique",
-                allowClear: true
-            });
-
-            // Gestion de l'affichage du dossier sélectionné (optionnel)
             const dossierSelect = document.getElementById('dossierClassementSelect');
             const dossierDisplay = document.getElementById('selectedDossierDisplay');
             const dossierNom = document.getElementById('dossierNom');
@@ -585,247 +310,43 @@
                     dossierDisplay.style.display = 'block';
                 }
             }
-
-            // Gestion des événements submit pour les formulaires Personne et Société
-            const personneForm = document.getElementById('personneForm');
-            const societeForm = document.getElementById('societeForm');
-
-            if (personneForm) {
-                personneForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    console.log('Formulaire Personne soumis');
-                    
-                    if (!this.checkValidity()) {
-                        e.stopPropagation();
-                        this.classList.add('was-validated');
-                        return;
-                    }
-
-                    const formData = new FormData(this);
-                    console.log('FormData Personne créé:', formData);
-                    
-                    if (!formData.get('nom')) {
-                        alert('Le nom est obligatoire');
-                        return;
-                    }
-
-                    const data = {
-                        raisonSociale: 'Personne',
-                        nom: formData.get('nom'),
-                        civilite: formData.get('civilite'),
-                        email: formData.get('email'),
-                        contact1: formData.get('contact1'),
-                        adresse: formData.get('adresse'),
-                        ville: formData.get('ville'),
-                        codePostal: formData.get('codePostal'),
-                        pays: formData.get('pays')
-                    };
-
-                    console.log('Données Personne à envoyer:', data);
-                    saveCorrespondant(data);
-                });
-            }
-
-            if (societeForm) {
-                societeForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    console.log('Formulaire Société soumis');
-                    
-                    if (!this.checkValidity()) {
-                        e.stopPropagation();
-                        this.classList.add('was-validated');
-                        return;
-                    }
-
-                    const formData = new FormData(this);
-                    console.log('FormData Société créé:', formData);
-                    
-                    if (!formData.get('nomOrg')) {
-                        alert('Le nom de la société est obligatoire');
-                        return;
-                    }
-
-                    const data = {
-                        raisonSociale: 'Organisation',
-                        nom: formData.get('nomOrg'),
-                        email: formData.get('email'),
-                        contact1: formData.get('contact1'),
-                        adresse: formData.get('adresse'),
-                        ville: formData.get('ville'),
-                        codePostal: formData.get('codePostal'),
-                        pays: formData.get('pays')
-                    };
-
-                    console.log('Données Société à envoyer:', data);
-                    saveCorrespondant(data);
-                });
-            }
         });
 
         // Gestion du nouveau mode d'envoi
         document.getElementById('btnAddModeEnvoi').addEventListener('click', function() {
-            const modeEnvoiModal = new bootstrap.Modal(document.getElementById('modeEnvoiModal'));
-            modeEnvoiModal.show();
+            const modal = new bootstrap.Modal(document.getElementById('modeEnvoiModal'));
+            modal.show();
         });
 
-        // Gestion du nouveau système d'expéditeur
-        document.getElementById('btnNewCorrespondant').addEventListener('click', function() {
-            const typeModal = new bootstrap.Modal(document.getElementById('correspondantTypeModal'));
-            typeModal.show();
+        // Gestion du nouveau correspondant
+        document.getElementById('btnAddCorrespondant').addEventListener('click', function() {
+            const modal = new bootstrap.Modal(document.getElementById('correspondantModal'));
+            modal.show();
         });
 
-        document.getElementById('btnPersonne').addEventListener('click', function() {
-            const typeModal = bootstrap.Modal.getInstance(document.getElementById('correspondantTypeModal'));
-            typeModal.hide();
-            
-            const personneModal = new bootstrap.Modal(document.getElementById('personneModal'));
-            personneModal.show();
+        // Gestion de la nouvelle catégorie
+        document.getElementById('btnAddCategorie').addEventListener('click', function() {
+            const modal = new bootstrap.Modal(document.getElementById('categorieModal'));
+            modal.show();
         });
 
-        document.getElementById('btnSociete').addEventListener('click', function() {
-            const typeModal = bootstrap.Modal.getInstance(document.getElementById('correspondantTypeModal'));
-            typeModal.hide();
-            
-            const societeModal = new bootstrap.Modal(document.getElementById('societeModal'));
-            societeModal.show();
+        // Gestion de la nouvelle nature
+        document.getElementById('btnAddNature').addEventListener('click', function() {
+            const modal = new bootstrap.Modal(document.getElementById('natureModal'));
+            modal.show();
         });
 
+        // Gestion du nouveau type de dossier
+        document.getElementById('btnAddTypeDossier').addEventListener('click', function() {
+            const modal = new bootstrap.Modal(document.getElementById('typeDossierModal'));
+            modal.show();
+        });
 
-        function saveCorrespondant(data) {
-            console.log('Saving correspondant:', data);
-            
-            fetch('/Correspondants/CreateAjax', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers);
-                
-                if (!response.ok) {
-                    // Try to get error message from response
-                    return response.text().then(text => {
-                        console.log('Response text:', text);
-                        throw new Error(`HTTP error! status: ${response.status}, response: ${text}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(result => {
-                console.log('Response result:', result);
-                if (result.success) {
-                    // Ajouter le nouveau correspondant à la liste déroulante
-                    const select = document.getElementById('CorrespondantId');
-                    if (select) {
-                        const option = new Option(result.nom, result.id, false, true);
-                        select.appendChild(option);
-                    }
-                    
-                    // Fermer les modaux et réinitialiser les formulaires
-                    const personneModalElement = document.getElementById('personneModal');
-                    const societeModalElement = document.getElementById('societeModal');
-                    
-                    if (personneModalElement) {
-                        const personneModal = bootstrap.Modal.getInstance(personneModalElement);
-                        if (personneModal) personneModal.hide();
-                        document.getElementById('personneForm').reset();
-                        document.getElementById('personneForm').classList.remove('was-validated');
-                    }
-                    
-                    if (societeModalElement) {
-                        const societeModal = bootstrap.Modal.getInstance(societeModalElement);
-                        if (societeModal) societeModal.hide();
-                        document.getElementById('societeForm').reset();
-                        document.getElementById('societeForm').classList.remove('was-validated');
-                    }
-
-                    // Notification
-                    alert('Expéditeur créé avec succès');
-                } else {
-                    alert('Erreur: ' + (result.message || 'Erreur inconnue'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Erreur lors de la création de l\'expéditeur: ' + error.message);
-            });
-        }
-
-        // Gestion du formulaire mode d'envoi
-        const modeEnvoiForm = document.getElementById('modeEnvoiForm');
-        if (modeEnvoiForm) {
-            modeEnvoiForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                if (!this.checkValidity()) {
-                    e.stopPropagation();
-                    this.classList.add('was-validated');
-                    return;
-                }
-
-                const formData = new FormData(this);
-                const data = {
-                    code: formData.get('Code'),
-                    libelle: formData.get('Libelle'),
-                    description: formData.get('Description'),
-                    actif: formData.get('Actif') === 'on',
-                    ordre: parseInt(formData.get('Ordre')) || 0
-                };
-
-                saveModeEnvoi(data);
-            });
-        }
-
-        function saveModeEnvoi(data) {
-            fetch('/ModesEnvoi/CreateAjax', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        throw new Error(`HTTP error! status: ${response.status}, response: ${text}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(result => {
-                if (result.success) {
-                    // Ajouter le nouveau mode d'envoi à la liste déroulante
-                    const select = document.getElementById('modeEnvoiSelect');
-                    if (select) {
-                        const option = new Option(result.libelle, result.id, false, true);
-                        select.appendChild(option);
-                    }
-                    
-                    // Fermer le modal et réinitialiser le formulaire
-                    const modeEnvoiModalElement = document.getElementById('modeEnvoiModal');
-                    if (modeEnvoiModalElement) {
-                        const modeEnvoiModal = bootstrap.Modal.getInstance(modeEnvoiModalElement);
-                        if (modeEnvoiModal) modeEnvoiModal.hide();
-                        document.getElementById('modeEnvoiForm').reset();
-                        document.getElementById('modeEnvoiForm').classList.remove('was-validated');
-                    }
-
-                    // Notification
-                    alert('Mode d\'envoi créé avec succès');
-                } else {
-                    alert('Erreur: ' + (result.message || 'Erreur inconnue'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Erreur lors de la création du mode d\'envoi: ' + error.message);
-            });
-        }
+        // Gestion du nouveau dossier de classement
+        document.getElementById('btnAddDossierClassement').addEventListener('click', function() {
+            const modal = new bootstrap.Modal(document.getElementById('dossierClassementModal'));
+            modal.show();
+        });
 
         // Focus the file input when user clicks the Select button
         document.getElementById('btnSelect').addEventListener('click', function () {
@@ -838,10 +359,8 @@
 
         const fileInput = document.getElementById('fileInput');
         const fileViewerInput = document.getElementById('fileViewerInput');
-        const btnViewFile = document.getElementById('btnViewFile');
         const fileViewedCheckbox = document.getElementById('fileViewedCheckbox');
         const visualizedCheckbox = document.getElementById('visualizedCheckbox');
-        const submitBtn = document.getElementById('submitBtn');
 
         // Gestion de la sélection de fichier pour visualisation
         fileViewerInput.addEventListener('change', function (e) {
@@ -924,33 +443,39 @@
             document.getElementById('dossierClassementSelect').focus();
         });
 
-        // Validation du formulaire avant soumission
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const requiredFields = [
-                'Objet',
-                'DateReception',
-                'CategorieCourrierId',
-                'ModeEnvoiId',
-                'NatureCourrierId',
-                'CorrespondantId',
-                'ServiceId'
-            ];
-            
-            let isValid = true;
-            let errorMessage = '';
-            
-            requiredFields.forEach(field => {
-                const element = document.querySelector(`[name="${field}"]`);
-                if (element && !element.value) {
-                    isValid = false;
-                    errorMessage = `Le champ "${element.previousElementSibling?.textContent || field}" est requis.`;
-                }
-            });
-            
-            if (!isValid) {
-                e.preventDefault();
-                alert(errorMessage);
-            }
+        // Test simple pour vérifier que le bouton Enregistrer fonctionne
+        document.getElementById('submitBtn').addEventListener('click', function(e) {
+            console.log('Bouton Enregistrer cliqué !');
+            // Laisser le formulaire se soumettre normalement
         });
+
+        // Validation du formulaire avant soumission - Désactivée temporairement pour tests
+        // document.querySelector('form').addEventListener('submit', function(e) {
+        //     const requiredFields = [
+        //         'Objet',
+        //         'DateReception',
+        //         'CategorieCourrierId',
+        //         'ModeEnvoiId',
+        //         'NatureCourrierId',
+        //         'CorrespondantId',
+        //         'ServiceId'
+        //     ];
+        //
+        //     let isValid = true;
+        //     let errorMessage = '';
+        //
+        //     requiredFields.forEach(field => {
+        //         const element = document.querySelector(`[name="${field}"]`);
+        //         if (element && !element.value) {
+        //             isValid = false;
+        //             errorMessage = `Le champ "${element.previousElementSibling?.textContent || field}" est requis.`;
+        //         }
+        //     });
+        //
+        //     if (!isValid) {
+        //         e.preventDefault();
+        //         alert(errorMessage);
+        //     }
+        // });
     </script>
 }

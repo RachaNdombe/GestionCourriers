@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using JconsultGC.Data;
 using JconsultGC.Models;
+using JconsultGC.ViewModels;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 
@@ -23,9 +24,8 @@ namespace JconsultGC.Controllers
             _logger = logger;
         }
 
-        // =============================================
         // ACTIONS PRINCIPALES
-        // =============================================
+       
 
         // GET: Service
         public async Task<IActionResult> Index(string searchTerm = "", string statusFilter = "", int page = 1, int pageSize = 10)
@@ -240,9 +240,9 @@ namespace JconsultGC.Controllers
                 var viewModel = new EditServiceViewModel
                 {
                     Id = service.Id,
-                    Nom = service.Nom ?? string.Empty,
-                    Code = service.Code ?? string.Empty,
-                    Description = service.Description ?? string.Empty,
+                    Nom = service.Nom,
+                    Code = service.Code,
+                    Description = service.Description,
                     IsActive = service.Actif
                 };
 
@@ -424,11 +424,14 @@ namespace JconsultGC.Controllers
             return await _context.Services!.AnyAsync(e => e.Id == id);
         }
     }
+}
 
-    // =============================================
-    // VIEWMODELS
-    // =============================================
+// =============================================
+// VIEWMODELS
+// =============================================
 
+namespace JconsultGC.ViewModels
+{
     public class ServiceIndexViewModel
     {
         public List<ServiceViewModel> Services { get; set; } = new();
