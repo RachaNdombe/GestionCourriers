@@ -1,0 +1,52 @@
+@model List<string>
+
+@{
+    ViewData["Title"] = "Résultats du Diagnostic";
+}
+
+<div class="container mt-4">
+    <h2>Résultats du Diagnostic - Association Service/Utilisateur</h2>
+    
+    <div class="card mt-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Résultats</h5>
+        </div>
+        <div class="card-body">
+            @if (Model != null && Model.Any())
+            {
+                <div class="list-group">
+                    @foreach (var result in Model)
+                    {
+                        <div class="list-group-item">
+                            @if (result.StartsWith("✓"))
+                            {
+                                <span class="text-success">@result</span>
+                            }
+                            else if (result.StartsWith("✗") || result.StartsWith("ERREUR"))
+                            {
+                                <span class="text-danger">@result</span>
+                            }
+                            else if (result.StartsWith("==="))
+                            {
+                                <strong class="text-primary">@result</strong>
+                            }
+                            else
+                            {
+                                @result
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">Aucun résultat disponible.</p>
+            }
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a href="/Diagnostic/FixServiceAssociation" class="btn btn-primary">Relancer le diagnostic</a>
+        <a href="/Admin" class="btn btn-secondary">Retour à l'administration</a>
+    </div>
+</div>

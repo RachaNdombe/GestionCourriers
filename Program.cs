@@ -59,7 +59,7 @@ using (var scope = app.Services.CreateScope())
         var userManager = services.GetRequiredService<UserManager<User>>();
         var logger = services.GetRequiredService<ILogger<Program>>();
 
-        var roles = new[] { "Stat", "Classement", "Admin", "Indexateur", "SuperUser", "ServiceExp", "Archiviste", "Viseur", "Signataire" };
+        var roles = new[] { "Stat", "Classement", "Admin", "Indexateur", "SuperUser", "ServiceExpéditeur", "Archiviste", "Viseur", "Signataire" };
         foreach (var roleName in roles)
         {
             var exists = roleManager.RoleExistsAsync(roleName).GetAwaiter().GetResult();
@@ -80,6 +80,26 @@ using (var scope = app.Services.CreateScope())
         var admin = userManager.FindByEmailAsync(adminEmail).GetAwaiter().GetResult();
         if (admin == null)
         {
+            // Utiliser le contexte existant
+            using var adminContext = scope.ServiceProvider.GetRequiredService<ProjetIdDbContext>();
+            
+            // Créer un service par défaut s'il n'en existe pas
+            var existingService = adminContext.Services!.FirstOrDefault();
+            if (existingService == null)
+            {
+                existingService = new Service
+                {
+                    Nom = "Service Administratif",
+                    Code = "SERV-ADMIN",
+                    Description = "Service administratif par défaut",
+                    Actif = true,
+                    CreatedAtUtc = DateTime.UtcNow,
+                    UpdatedAtUtc = DateTime.UtcNow
+                };
+                adminContext.Services!.Add(existingService);
+                adminContext.SaveChanges();
+            }
+
             var user = new User
             {
                 UserName = adminEmail,
@@ -90,7 +110,8 @@ using (var scope = app.Services.CreateScope())
                 Telephone = "0000000000",
                 Role = UserRole.Admin,
                 IsActive = true,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                ServiceId = existingService.Id
             };
 
             var created = userManager.CreateAsync(user, adminPassword).GetAwaiter().GetResult();
@@ -112,6 +133,26 @@ using (var scope = app.Services.CreateScope())
         var indexUser = userManager.FindByEmailAsync(indexEmail).GetAwaiter().GetResult();
         if (indexUser == null)
         {
+            // Utiliser le contexte existant
+            using var indexContext = scope.ServiceProvider.GetRequiredService<ProjetIdDbContext>();
+            
+            // Créer un service par défaut s'il n'en existe pas
+            var existingService = indexContext.Services!.FirstOrDefault();
+            if (existingService == null)
+            {
+                existingService = new Service
+                {
+                    Nom = "Service Indexation",
+                    Code = "SERV-INDEX",
+                    Description = "Service d'indexation par défaut",
+                    Actif = true,
+                    CreatedAtUtc = DateTime.UtcNow,
+                    UpdatedAtUtc = DateTime.UtcNow
+                };
+                indexContext.Services!.Add(existingService);
+                indexContext.SaveChanges();
+            }
+
             var iu = new User
             {
                 UserName = indexEmail,
@@ -122,7 +163,8 @@ using (var scope = app.Services.CreateScope())
                 Telephone = "0000000000",
                 Role = UserRole.Indexateur,
                 IsActive = true,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                ServiceId = existingService.Id
             };
 
             var createdIndex = userManager.CreateAsync(iu, indexPassword).GetAwaiter().GetResult();
@@ -134,6 +176,121 @@ using (var scope = app.Services.CreateScope())
             else
             {
                 logger.LogWarning("Failed to create indexateur user: {Errors}", string.Join(';', createdIndex.Errors.Select(e => e.Description)));
+            }
+        }
+
+        // Seed a Viseur user for testing
+        var viseurEmail = builder.Configuration["ViseurUser:Email"] ?? "viseur@local";
+        var viseurPassword = builder.Configuration["ViseurUser:Password"] ?? "Viseur123!";
+
+        var viseurUser = userManager.FindByEmailAsync(viseurEmail).GetAwaiter().GetResult();
+        if (viseurUser == null)
+        {
+            // Utiliser le contexte existant
+            using var viseurContext = scope.ServiceProvider.GetRequiredService<ProjetIdDbContext>();
+            
+            // Créer un service par défaut s'il n'en existe pas
+            var existingService = viseurContext.Services!.FirstOrDefault();
+            if (existingService == null)
+            {
+                existingService = new Service
+                {
+                    Nom = "Service Viseur",
+                    Code = "SERV-VISEUR",
+                    Description = "Service de visa par défaut",
+                    Actif = true,
+                    CreatedAtUtc = DateTime.UtcNow,
+                    UpdatedAtUtc = DateTime.UtcNow
+                };
+                viseurContext.Services!.Add(existingService);
+                viseurContext.SaveChanges();
+            }
+
+            var vu = new User
+            {
+                UserName = viseurEmail,
+                Email = viseurEmail,
+                Nom = "Viseur",
+                Prenom = "User",
+                Societe = "Administration",
+                Telephone = "0000000000",
+                Role = UserRole.Viseur,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                ServiceId = existingService.Id
+            };
+
+            var createdViseur = userManager.CreateAsync(vu, viseurPassword).GetAwaiter().GetResult();
+            if (createdViseur.Succeeded)
+            {
+                userManager.AddToRoleAsync(vu, UserRole.Viseur.ToString()).GetAwaiter().GetResult();
+                logger.LogInformation("Seeded viseur user '{Email}' with role Viseur (password: {Pwd}).", viseurEmail, viseurPassword);
+            }
+            else
+            {
+                logger.LogWarning("Failed to create viseur user: {Errors}", string.Join(';', createdViseur.Errors.Select(e => e.Description)));
+            }
+        }
+
+        // Seed a ServiceExpéditeur user for testing (Responsable de service)
+        var serviceEmail = builder.Configuration["ServiceUser:Email"] ?? "service@jconsult.com";
+        var servicePassword = builder.Configuration["ServiceUser:Password"] ?? "Service123!";
+
+        var serviceUser = userManager.FindByEmailAsync(serviceEmail).GetAwaiter().GetResult();
+        if (serviceUser == null)
+        {
+            // Utiliser le contexte existant
+            using var serviceContext = scope.ServiceProvider.GetRequiredService<ProjetIdDbContext>();
+            
+            // Trouver le service Algorithmique existant ou créer un service par défaut
+            var existingService = serviceContext.Services!.FirstOrDefault(s => s.Nom!.Contains("Algorithmique"));
+            if (existingService == null)
+            {
+                existingService = serviceContext.Services!.FirstOrDefault();
+                if (existingService == null)
+                {
+                    existingService = new Service
+                    {
+                        Nom = "Service Algorithmique",
+                        Code = "SERV-ALGO",
+                        Description = "Service  algorithmique",
+                        Actif = true,
+                        CreatedAtUtc = DateTime.UtcNow,
+                        UpdatedAtUtc = DateTime.UtcNow
+                    };
+                    serviceContext.Services!.Add(existingService);
+                    serviceContext.SaveChanges();
+                }
+            }
+
+            var su = new User
+            {
+                UserName = serviceEmail,
+                Email = serviceEmail,
+                Nom = "Responsable",
+                Prenom = "Service",
+                Societe = "Administration",
+                Telephone = "0000000000",
+                Role = UserRole.ServiceExpéditeur,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                ServiceId = existingService.Id
+            };
+
+            var createdService = userManager.CreateAsync(su, servicePassword).GetAwaiter().GetResult();
+            if (createdService.Succeeded)
+            {
+                userManager.AddToRoleAsync(su, "ServiceExpéditeur").GetAwaiter().GetResult();
+                
+                // Mettre à jour le service avec le responsable
+                existingService.Responsable = $"{su.Nom} {su.Prenom}";
+                serviceContext.SaveChanges();
+                
+                logger.LogInformation("Seeded service user '{Email}' with role ServiceExpéditeur (password: {Pwd}) associated with service '{ServiceName}'.", serviceEmail, servicePassword, existingService.Nom);
+            }
+            else
+            {
+                logger.LogWarning("Failed to create service user: {Errors}", string.Join(';', createdService.Errors.Select(e => e.Description)));
             }
         }
     }
@@ -172,3 +329,4 @@ app.MapControllerRoute(
     pattern: "Correspondants/{action=Index}/{id?}");
 
 app.Run();
+

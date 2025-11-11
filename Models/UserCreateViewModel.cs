@@ -21,5 +21,8 @@ namespace JconsultGC.Models
 
         [Required]
         public string Role { get; set; }
+
+        [Required(ErrorMessage = "Le service est requis")]
+        public int ServiceId { get; set; }
     }
 }

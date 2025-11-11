@@ -30,7 +30,6 @@ namespace JconsultGC.Controllers
         {
             var courriers = await _context.Courriers
                 .Include(c => c.CreatedBy)
-                .Include(c => c.ServiceConcerne)
                 .Include(c => c.Correspondant)
                 .Include(c => c.CategorieCourrier)
                 .Include(c => c.NatureCourrier)
@@ -51,7 +50,6 @@ namespace JconsultGC.Controllers
 
             var courrier = await _context.Courriers
                 .Include(c => c.CreatedBy)
-                .Include(c => c.ServiceConcerne)
                 .Include(c => c.Correspondant)
                 .Include(c => c.Documents)
                 .Include(c => c.CategorieCourrier)
@@ -70,7 +68,7 @@ namespace JconsultGC.Controllers
         // POST: CourriersArchive/Archiver/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Archivage")]
+        [Authorize(Roles = "Archivage,Indexateur")]
         public async Task<IActionResult> Archiver(int id)
         {
             var courrier = await _context.Courriers.FindAsync(id);
@@ -142,7 +140,6 @@ namespace JconsultGC.Controllers
         {
             var query = _context.Courriers
                 .Include(c => c.CreatedBy)
-                .Include(c => c.ServiceConcerne)
                 .Include(c => c.Correspondant)
                 .Include(c => c.CategorieCourrier)
                 .Include(c => c.NatureCourrier)

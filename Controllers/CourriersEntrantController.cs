@@ -716,6 +716,69 @@ namespace JconsultGC.Controllers
             }
         }
 
+        // POST: CourriersEntrant/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Indexateur")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var courrier = await _context.Courriers!
+                .Include(c => c.Documents)
+                .FirstOrDefaultAsync(c => c.Id == id);
+                
+            if (courrier == null)
+            {
+                return NotFound();
+            }
+
+            // Vérifier que l'utilisateur peut supprimer ce courrier (créé par lui-même)
+            var user = await _userManager.GetUserAsync(User);
+            if (courrier.CreatedById != user?.Id)
+            {
+                return Forbid();
+            }
+
+            // Vérifier que le courrier est encore en statut "A valider" (non validé)
+            if (courrier.Statut != "A valider")
+            {
+                TempData["ErrorMessage"] = "Impossible de supprimer un courrier qui a déjà été validé.";
+                return RedirectToAction("Details", new { id = courrier.Id });
+            }
+
+            try
+            {
+                // Ajouter l'historique AVANT de supprimer le courrier
+                var hist = new CourrierHistory
+                {
+                    CourrierId = courrier.Id,
+                    UserId = user!.Id,
+                    Action = "Supprimé",
+                    Note = $"Courrier entrant supprimé - Numéro d'ordre: {courrier.OrdreNumero}",
+                    Timestamp = DateTime.UtcNow
+                };
+                _context.CourrierHistories!.Add(hist);
+
+                // Supprimer les documents associés
+                if (courrier.Documents != null && courrier.Documents.Any())
+                {
+                    _context.Documents!.RemoveRange(courrier.Documents);
+                }
+
+                // Supprimer le courrier
+                _context.Courriers!.Remove(courrier);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Courrier supprimé avec succès !";
+                return RedirectToAction("Dashboard", "Indexateur");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la suppression du courrier");
+                TempData["ErrorMessage"] = "Erreur lors de la suppression du courrier. Veuillez réessayer.";
+                return RedirectToAction("Details", new { id = courrier.Id });
+            }
+        }
+
         private bool CourrierExists(int id)
         {
             return _context.Courriers!.Any(e => e.Id == id);

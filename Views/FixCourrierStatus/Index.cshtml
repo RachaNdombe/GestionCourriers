@@ -1,0 +1,141 @@
+@model JconsultGC.Controllers.FixCourrierStatusViewModel
+
+@{
+    ViewData["Title"] = "Correction des Statuts de Courriers";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Correction des Statuts de Courriers</h3>
+                </div>
+                <div class="card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success">
+                            @TempData["SuccessMessage"]
+                        </div>
+                    }
+                    @if (TempData["InfoMessage"] != null)
+                    {
+                        <div class="alert alert-info">
+                            @TempData["InfoMessage"]
+                        </div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger">
+                            @TempData["ErrorMessage"]
+                        </div>
+                    }
+
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="info-box bg-warning">
+                                <span class="info-box-icon"><i class="fas fa-exclamation-triangle"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Courriers à corriger</span>
+                                    <span class="info-box-number">@Model.CourriersAvecMauvaisStatut</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box bg-info">
+                                <span class="info-box-icon"><i class="fas fa-tasks"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Courriers Assignés</span>
+                                    <span class="info-box-number">@Model.CourriersAssignes</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box bg-primary">
+                                <span class="info-box-icon"><i class="fas fa-cog"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">En Traitement</span>
+                                    <span class="info-box-number">@Model.CourriersEnTraitement</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box bg-success">
+                                <span class="info-box-icon"><i class="fas fa-check"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Traités</span>
+                                    <span class="info-box-number">@Model.CourriersTraites</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (Model.CourriersAvecMauvaisStatut > 0)
+                    {
+                        <div class="alert alert-warning">
+                            <h5><i class="fas fa-exclamation-triangle"></i> Attention</h5>
+                            <p>Il y a @Model.CourriersAvecMauvaisStatut courrier(s) qui ont été assignés à un service mais qui ont le statut "Validé" au lieu de "Assigné".</p>
+                            <p>Ces courriers ne sont pas visibles dans le dashboard des services.</p>
+                            <form asp-action="FixStatus" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fas fa-wrench"></i> Corriger les statuts
+                                </button>
+                            </form>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-success">
+                            <h5><i class="fas fa-check-circle"></i> Tout est en ordre</h5>
+                            <p>Tous les courriers assignés aux services ont le bon statut.</p>
+                        </div>
+                    }
+
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h4 class="card-title">Détails par Service</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Service</th>
+                                            <th>Total</th>
+                                            <th>Assignés</th>
+                                            <th>En Traitement</th>
+                                            <th>Traités</th>
+                                            <th>Validés (à corriger)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var service in Model.CourriersParService)
+                                        {
+                                            <tr>
+                                                <td>@service.ServiceNom</td>
+                                                <td>@service.Total</td>
+                                                <td>@service.Assignes</td>
+                                                <td>@service.EnTraitement</td>
+                                                <td>@service.Traites</td>
+                                                <td class="@(service.Valides > 0 ? "text-danger font-weight-bold" : "")">
+                                                    @service.Valides
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="@Url.Action("Index", "Admin")" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Retour à l'administration
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

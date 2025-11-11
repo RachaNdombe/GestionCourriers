@@ -45,10 +45,18 @@
                 <option value="Viseur">Viseur</option>
                 <option value ="Signataire"> Signataire </option>
                 <option value="SuperUser"> SuperUser </option>
-                <option value="ServiceExpediteur"> ServiceExpéditeur </option>
+                <option value="ServiceExpéditeur"> ServiceExpéditeur </option>
                 <option value="validateur"> Validateur </option>
             </select>
             <span asp-validation-for="Role" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="ServiceId" class="control-label">Service</label>
+            <select asp-for="ServiceId" asp-items="ViewBag.Services" class="form-control">
+                <option value="">Sélectionnez un service</option>
+            </select>
+            <span asp-validation-for="ServiceId" class="text-danger"></span>
         </div>
 
         <div class="form-group mt-3">

@@ -23,6 +23,10 @@ public class RegisterViewModel
     [Display(Name = "Rôle")]
     public UserRole Role { get; set; }
 
+    [Required(ErrorMessage = "Le service est requis")]
+    [Display(Name = "Service")]
+    public int ServiceId { get; set; }
+
     [Required(ErrorMessage = "Le mot de passe est requis")]
     [StringLength(100, ErrorMessage = "Le {0} doit avoir au moins {2} caractères.", MinimumLength = 6)]
     [DataType(DataType.Password)]
@@ -33,6 +37,4 @@ public class RegisterViewModel
     [Display(Name = "Confirmer le mot de passe")]
     [Compare("Password", ErrorMessage = "Les mots de passe ne correspondent pas.")]
     public string ConfirmPassword { get; set; } = string.Empty;
-
-    public int? ServiceId { get; set; }
 }

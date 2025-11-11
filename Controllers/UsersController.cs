@@ -209,7 +209,7 @@ namespace JconsultGC.Controllers
                 Nom = user.Nom,
                 Prenom = user.Prenom,
                 Phone = user.PhoneNumber,
-                ServiceId = user.ServiceId,
+                ServiceId = user.ServiceId ?? 0,
                 SelectedRoles = roles.ToList(),
                 AllRoles = allRoles,
                 EmailConfirmed = user.EmailConfirmed,
@@ -377,7 +377,8 @@ namespace JconsultGC.Controllers
         [Phone(ErrorMessage = "Le numéro de téléphone n'est pas valide.")]
         public string? Phone { get; set; }
 
-        public int? ServiceId { get; set; }
+        [Required(ErrorMessage = "Le service est requis")]
+        public int ServiceId { get; set; }
 
         public bool EmailConfirmed { get; set; } = true;
         public List<string> SelectedRoles { get; set; } = new();
@@ -402,18 +403,13 @@ namespace JconsultGC.Controllers
         [Phone(ErrorMessage = "Le numéro de téléphone n'est pas valide.")]
         public string? Phone { get; set; }
 
-        public int? ServiceId { get; set; }
+        [Required(ErrorMessage = "Le service est requis")]
+        public int ServiceId { get; set; }
         public List<string> SelectedRoles { get; set; } = new();
         public List<string> AllRoles { get; set; } = new();
         public bool EmailConfirmed { get; set; }
         public bool IsActive { get; set; }
     }
 
-/**
-    public class ServiceOption
-    {
-        public int Id { get; set; }
-        public string Nom { get; set; } = string.Empty;
-    }**/
 
 }

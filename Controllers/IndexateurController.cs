@@ -58,6 +58,9 @@ namespace JconsultGC.Controllers
                 CourriersASaisir = await _context.Courriers!
                     .Where(c => c.CreatedById == user.Id && c.Statut == "A saisir")
                     .CountAsync(),
+                CourriersSignes = await _context.Courriers!
+                    .Where(c => c.Statut == "Signé")
+                    .CountAsync(),
                 RecentActions = await _context.CourrierHistories!
                     .Where(h => h.UserId == user.Id && h.Timestamp.Date == today)
                     .OrderByDescending(h => h.Timestamp)
@@ -65,6 +68,12 @@ namespace JconsultGC.Controllers
                     .ToListAsync(),
                 CourriersAValider = await _context.Courriers!
                     .Where(c => c.CreatedById == user.Id && c.Statut == "A valider")
+                    .OrderByDescending(c => c.DateEnregistrement)
+                    .Take(10)
+                    .Include(c => c.CategorieCourrier)
+                    .ToListAsync(),
+                CourriersSignesList = await _context.Courriers!
+                    .Where(c => c.Statut == "Signé")
                     .OrderByDescending(c => c.DateEnregistrement)
                     .Take(10)
                     .Include(c => c.CategorieCourrier)

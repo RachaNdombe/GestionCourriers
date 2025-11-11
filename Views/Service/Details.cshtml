@@ -1,0 +1,240 @@
+@model JconsultGC.Models.Courrier
+
+@{
+    ViewData["Title"] = "Détails du courrier";
+}
+
+<div class="container mt-4">
+    <h2>Détails du courrier</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Informations du courrier</h5>
+                <div>
+                    <span class="badge @GetStatusBadgeClass(Model.Statut)">@Model.Statut</span>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Informations générales</h6>
+                    <dl class="row">
+                        <dt class="col-sm-4">N° d'ordre:</dt>
+                        <dd class="col-sm-8">@Model.OrdreNumero</dd>
+
+                        <dt class="col-sm-4">N° de registre:</dt>
+                        <dd class="col-sm-8">@Model.RegistreNumero</dd>
+
+                        <dt class="col-sm-4">Référence:</dt>
+                        <dd class="col-sm-8">@Model.ReferenceNumero</dd>
+
+                        <dt class="col-sm-4">Objet:</dt>
+                        <dd class="col-sm-8">@Model.Objet</dd>
+
+                        <dt class="col-sm-4">Date réception:</dt>
+                        <dd class="col-sm-8">@Model.DateReception?.ToString("dd/MM/yyyy")</dd>
+
+                        <dt class="col-sm-4">Heure réception:</dt>
+                        <dd class="col-sm-8">@Model.HeureRecu?.ToString(@"hh\:mm")</dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <h6>Classification</h6>
+                    <dl class="row">
+                        <dt class="col-sm-4">Catégorie:</dt>
+                        <dd class="col-sm-8">@(Model.CategorieCourrier?.Nom ?? "Non spécifié")</dd>
+
+                        <dt class="col-sm-4">Nature:</dt>
+                        <dd class="col-sm-8">@(Model.NatureCourrier?.Nom ?? "Non spécifié")</dd>
+
+                        <dt class="col-sm-4">Mode d'envoi:</dt>
+                        <dd class="col-sm-8">@(Model.ModeEnvoi?.Libelle ?? "Non spécifié")</dd>
+
+                        <dt class="col-sm-4">Type dossier:</dt>
+                        <dd class="col-sm-8">@(Model.TypeDossier?.Libelle ?? "Non spécifié")</dd>
+
+                        <dt class="col-sm-4">Confidentialité:</dt>
+                        <dd class="col-sm-8">@Model.Confidentialite</dd>
+
+                        <dt class="col-sm-4">Priorité:</dt>
+                        <dd class="col-sm-8">@Model.Priorite</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <h6>Correspondant</h6>
+                    <dl class="row">
+                        <dt class="col-sm-4">Nom:</dt>
+                        <dd class="col-sm-8">@(Model.Correspondant?.Nom ?? "Non spécifié")</dd>
+
+                        <dt class="col-sm-4">Société:</dt>
+                        <dd class="col-sm-8">@(Model.Correspondant?.Societe ?? "Non spécifié")</dd>
+
+                        <dt class="col-sm-4">Email:</dt>
+                        <dd class="col-sm-8">@(Model.Correspondant?.Email ?? "Non spécifié")</dd>
+
+                        <dt class="col-sm-4">Téléphone:</dt>
+                        <dd class="col-sm-8">@(Model.Correspondant?.Telephone ?? "Non spécifié")</dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <h6>Service et classement</h6>
+                    <dl class="row">
+                        <dt class="col-sm-4">Service:</dt>
+                        <dd class="col-sm-8">@(Model.Service?.Nom ?? "Non spécifié")</dd>
+
+                        <dt class="col-sm-4">Service concerné:</dt>
+                        <dd class="col-sm-8">@Model.ServiceConcerne</dd>
+
+                        <dt class="col-sm-4">Dossier classement:</dt>
+                        <dd class="col-sm-8">@(Model.DossierClassement?.Titre ?? "Non spécifié")</dd>
+
+                        <dt class="col-sm-4">Utilisateurs en copie:</dt>
+                        <dd class="col-sm-8">@Model.UtilisateursEnCopie</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Documents joints -->
+            @if (Model.Documents?.Any() == true)
+            {
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6>Documents joints</h6>
+                        <div class="list-group">
+                            @foreach (var document in Model.Documents)
+                            {
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="bi bi-file-earmark"></i>
+                                            <strong>@document.NomFichier</strong>
+                                            <small class="text-muted">(@(document.Taille / 1024) KB)</small>
+                                        </div>
+                                        <a href="#" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-download"></i> Télécharger
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Actions selon le statut -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h6>Actions</h6>
+                    <div class="d-flex gap-2">
+                        @if (Model.Statut == "Assigné")
+                        {
+                            <form method="post" action="@Url.Action("CommencerTraitement", "Service", new { id = Model.Id })" class="d-inline">
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="bi bi-play-circle"></i> Commencer le traitement
+                                </button>
+                            </form>
+                        }
+                        else if (Model.Statut == "En traitement")
+                        {
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#terminerTraitementModal">
+                                <i class="bi bi-check-circle"></i> Terminer le traitement
+                            </button>
+                        }
+                        else if (Model.Statut == "Traité")
+                        {
+                            <a href="@Url.Action("Signer", "Service", new { id = Model.Id })" class="btn btn-primary">
+                                <i class="bi bi-pen"></i> Signer le courrier
+                            </a>
+                        }
+                        else if (Model.Statut == "Signé")
+                        {
+                            <span class="text-success">
+                                <i class="bi bi-check-circle-fill"></i> Courrier signé et terminé
+                            </span>
+                        }
+
+                        <a href="@Url.Action("Courriers", "Service")" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Retour à la liste
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour terminer le traitement -->
+@if (Model.Statut == "En traitement")
+{
+    <div class="modal fade" id="terminerTraitementModal" tabindex="-1" aria-labelledby="terminerTraitementModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="terminerTraitementModalLabel">Terminer le traitement</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" action="@Url.Action("TerminerTraitement", "Service", new { id = Model.Id })">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="noteTraitement" class="form-label">Note de traitement (optionnel)</label>
+                            <textarea class="form-control" id="noteTraitement" name="noteTraitement" rows="3" 
+                                      placeholder="Décrivez brièvement le traitement effectué..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-success">Terminer le traitement</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@functions {
+    string GetStatusBadgeClass(string? statut)
+    {
+        return statut switch
+        {
+            "Assigné" => "bg-warning",
+            "En traitement" => "bg-info",
+            "Traité" => "bg-success",
+            "Signé" => "bg-primary",
+            _ => "bg-secondary"
+        };
+    }
+}
+
+@section Scripts {
+    <script>
+        // Confirmation pour commencer le traitement
+        document.querySelectorAll('form[action*="CommencerTraitement"]').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                if (!confirm('Êtes-vous sûr de vouloir commencer le traitement de ce courrier ?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+}

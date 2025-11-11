@@ -9,9 +9,11 @@ namespace JconsultGC.Models
         public int CourriersEnAttente { get; set; }
         public int ActionsAujourdhui { get; set; }
         public int CourriersASaisir { get; set; }
+        public int CourriersSignes { get; set; }
         public List<CourrierHistory>? RecentActions { get; set; }
         public List<Courrier>? CourriersAValider { get; set; }
         public List<Courrier>? RecentCourriers { get; set; }
+        public List<Courrier>? CourriersSignesList { get; set; }
         public Dictionary<string, int>? CourriersByCategory { get; set; }
         public Dictionary<string, int>? CourriersByStatus { get; set; }
     }

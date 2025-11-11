@@ -18,6 +18,11 @@
                         <i class="bi bi-send-check"></i> Envoyer à la validation
                     </button>
                 </form>
+                <form asp-action="Delete" asp-controller="CourriersEntrant" asp-route-id="@Model.Id" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce courrier ? Cette action est irréversible.')">
+                        <i class="bi bi-trash"></i> Supprimer le courrier
+                    </button>
+                </form>
             }
             <a asp-action="Index" asp-controller="Indexateur" class="btn btn-secondary">
                 <i class="bi bi-arrow-left"></i> Retour au tableau de bord

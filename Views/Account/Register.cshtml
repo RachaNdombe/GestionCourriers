@@ -45,6 +45,14 @@
             </div>
 
             <div class="form-group">
+                <label asp-for="ServiceId"></label>
+                <select asp-for="ServiceId" asp-items="ViewBag.Services" class="form-control">
+                    <option value="">Sélectionnez un service</option>
+                </select>
+                <span asp-validation-for="ServiceId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
                 <label asp-for="Password"></label>
                 <input asp-for="Password" class="form-control" />
                 <span asp-validation-for="Password" class="text-danger"></span>

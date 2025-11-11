@@ -1,0 +1,56 @@
+@model List<string>
+
+@{
+    ViewData["Title"] = "Résultats de la correction des utilisateurs";
+}
+
+<div class="container mt-4">
+    <h2>Résultats de la correction des utilisateurs sans service</h2>
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Détails de l'opération</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="list-group">
+                    @foreach (var result in Model)
+                    {
+                        <div class="list-group-item">
+                            @if (result.StartsWith("✓"))
+                            {
+                                <span class="text-success">@result</span>
+                            }
+                            else if (result.StartsWith("✗"))
+                            {
+                                <span class="text-danger">@result</span>
+                            }
+                            else if (result.StartsWith("ERREUR"))
+                            {
+                                <span class="text-danger fw-bold">@result</span>
+                            }
+                            else if (result.Contains("==="))
+                            {
+                                <span class="fw-bold">@result</span>
+                            }
+                            else
+                            {
+                                @result
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">Aucun résultat disponible.</p>
+            }
+        </div>
+    </div>
+    
+    <div class="mt-3">
+        <a href="@Url.Action("Index", "Admin")" class="btn btn-primary">Retour à l'administration</a>
+        <a href="@Url.Action("Index", "FixExistingUsers")" class="btn btn-secondary">Exécuter à nouveau</a>
+    </div>
+</div>

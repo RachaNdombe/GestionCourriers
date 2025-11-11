@@ -1,0 +1,211 @@
+@model JconsultGC.Controllers.ValidationDetailsViewModel
+
+@{
+    ViewData["Title"] = "Validation du courrier";
+    var courrier = Model.Courrier;
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Validation du courrier</h2>
+        <div class="d-flex gap-2">
+            <a asp-action="Index" asp-controller="Validation" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Retour à la liste
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Informations générales</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="fw-bold">Numéro d'ordre:</label>
+                        <p class="form-control-plaintext">@courrier.OrdreNumero</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Numéro de registre:</label>
+                        <p class="form-control-plaintext">@(courrier.RegistreNumero ?? "Non spécifié")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Référence:</label>
+                        <p class="form-control-plaintext">@(courrier.ReferenceNumero ?? "Non spécifié")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Objet:</label>
+                        <p class="form-control-plaintext">@courrier.Objet</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="fw-bold">Date de réception:</label>
+                        <p class="form-control-plaintext">@(courrier.DateReception?.ToShortDateString() ?? "Non spécifiée")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Heure de réception:</label>
+                        <p class="form-control-plaintext">@(courrier.HeureRecu?.ToString() ?? "Non spécifiée")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Date d'enregistrement:</label>
+                        <p class="form-control-plaintext">@courrier.DateEnregistrement.ToShortDateString() @courrier.DateEnregistrement.ToShortTimeString()</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Indexateur:</label>
+                        <p class="form-control-plaintext">@(courrier.CreatedBy?.Nom ?? "Inconnu") @(courrier.CreatedBy?.Prenom)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Classification</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="fw-bold">Catégorie:</label>
+                        <p class="form-control-plaintext">@(courrier.CategorieCourrier?.Nom ?? "Non spécifiée")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Nature:</label>
+                        <p class="form-control-plaintext">@(courrier.NatureCourrier?.Nom ?? "Non spécifiée")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Mode d'envoi:</label>
+                        <p class="form-control-plaintext">@(courrier.ModeEnvoi?.Libelle ?? "Non spécifié")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Type de dossier:</label>
+                        <p class="form-control-plaintext">@(courrier.TypeDossier?.Libelle ?? "Non spécifié")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Dossier de classement:</label>
+                        <p class="form-control-plaintext">@(courrier.DossierClassement?.Titre ?? "Non spécifié")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Destinataires et correspondants</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="fw-bold">Expéditeur:</label>
+                        <p class="form-control-plaintext">@(courrier.Correspondant?.Nom ?? "Non spécifié")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Service concerné:</label>
+                        <p class="form-control-plaintext">@(courrier.ServiceConcerne ?? "Non spécifié")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Service destinataire actuel:</label>
+                        <p class="form-control-plaintext">@(courrier.Service?.Nom ?? "Non affecté")</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="fw-bold">Utilisateurs en copie:</label>
+                        <p class="form-control-plaintext">@(courrier.UtilisateursEnCopie ?? "Aucun")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section d'affectation du service -->
+    <div class="card mt-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+                <i class="bi bi-gear"></i> Affectation du service destinataire
+            </h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="AssignService" method="post" class="row g-3">
+                <input type="hidden" name="id" value="@courrier.Id" />
+                
+                <div class="col-md-8">
+                    <label class="form-label fw-bold">Sélectionner le service destinataire:</label>
+                    <select name="serviceId" class="form-select" required>
+                        <option value="">-- Choisir un service --</option>
+                        @foreach (var service in Model.AvailableServices)
+                        {
+                            <option value="@service.Id">@service.Nom</option>
+                        }
+                    </select>
+                    <div class="form-text">
+                        Sélectionnez le service auquel ce courrier doit être affecté.
+                    </div>
+                </div>
+                
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-success w-100" 
+                            onclick="return confirm('Êtes-vous sûr de vouloir valider et affecter ce courrier ?')">
+                        <i class="bi bi-check-circle"></i> Valider et affecter
+                    </button>
+                </div>
+            </form>
+
+            <!-- Section de rejet -->
+            <hr>
+            <div class="mt-3">
+                <h6>Rejeter le courrier</h6>
+                <form asp-action="Reject" method="post" class="row g-3">
+                    <input type="hidden" name="id" value="@courrier.Id" />
+                    
+                    <div class="col-md-8">
+                        <label class="form-label fw-bold">Raison du rejet (optionnel):</label>
+                        <textarea name="reason" class="form-control" rows="2" 
+                                  placeholder="Indiquez la raison du rejet..."></textarea>
+                        <div class="form-text">
+                            Le courrier sera renvoyé à l'indexateur pour correction.
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-danger w-100" 
+                                onclick="return confirm('Êtes-vous sûr de vouloir rejeter ce courrier ?')">
+                            <i class="bi bi-x-circle"></i> Rejeter
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

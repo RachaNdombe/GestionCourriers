@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using JconsultGC.Models;
+using JconsultGC.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace JconsultGC.Controllers;
 
@@ -8,13 +10,16 @@ public class AccountController : Controller
 {
     private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
+    private readonly ProjetIdDbContext _context;
 
     public AccountController(
         UserManager<User> userManager,
-        SignInManager<User> signInManager)
+        SignInManager<User> signInManager,
+        ProjetIdDbContext context)
     {
         _userManager = userManager;
         _signInManager = signInManager;
+        _context = context;
     }
 
     [HttpGet]
@@ -54,6 +59,14 @@ public class AccountController : Controller
                     {
                         return RedirectToAction("Dashboard", "Indexateur");
                     }
+                    else if (await _userManager.IsInRoleAsync(user, "ServiceExpéditeur"))
+                    {
+                        return RedirectToAction("Courriers", "Service");
+                    }
+                    else if (await _userManager.IsInRoleAsync(user, "Viseur"))
+                    {
+                        return RedirectToAction("Index", "Validation");
+                    }
                     return RedirectToAction("Index", "Home");
                 }
             }
@@ -75,9 +88,18 @@ public class AccountController : Controller
     }
 
     [HttpGet]
-    public IActionResult Register()
+    public async Task<IActionResult> Register()
     {
-        return View();
+        var services = await _context.Services!.Where(s => s.Actif).ToListAsync();
+        var model = new RegisterViewModel();
+        
+        ViewBag.Services = services.Select(s => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+        {
+            Value = s.Id.ToString(),
+            Text = s.Nom
+        }).ToList();
+        
+        return View(model);
     }
 
     [HttpPost]
@@ -110,6 +132,15 @@ public class AccountController : Controller
                 ModelState.AddModelError(string.Empty, error.Description);
             }
         }
+
+        // Re-populate services dropdown if validation fails
+        var services = await _context.Services!.Where(s => s.Actif).ToListAsync();
+        ViewBag.Services = services.Select(s => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+        {
+            Value = s.Id.ToString(),
+            Text = s.Nom
+        }).ToList();
+        
         return View(model);
     }
 

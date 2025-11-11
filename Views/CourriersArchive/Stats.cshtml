@@ -1,0 +1,131 @@
+@model dynamic
+
+@{
+    ViewData["Title"] = "Statistiques des archives";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">@ViewData["Title"]</h1>
+        <div>
+            <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Retour aux archives
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Total des archives -->
+        <div class="col-md-4 mb-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">@Model.TotalArchives</h4>
+                            <p class="card-text">Total des courriers archivés</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-archive fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Archives par mois -->
+        <div class="col-md-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Archives par mois</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.ArchivesParMois != null && Model.ArchivesParMois.Count > 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Période</th>
+                                        <th>Nombre d'archives</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.ArchivesParMois)
+                                    {
+                                        <tr>
+                                            <td>@item.Mois/@item.Annee</td>
+                                            <td>@item.Count</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted">
+                            <i class="fas fa-chart-bar fa-2x mb-2"></i>
+                            <p>Aucune donnée disponible</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Archives par catégorie -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Archives par catégorie</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.ArchivesParCategorie != null && Model.ArchivesParCategorie.Count > 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Catégorie</th>
+                                        <th>Nombre d'archives</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.ArchivesParCategorie)
+                                    {
+                                        <tr>
+                                            <td>@item.Categorie</td>
+                                            <td>@item.Count</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted">
+                            <i class="fas fa-tags fa-2x mb-2"></i>
+                            <p>Aucune donnée disponible par catégorie</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.table').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json'
+                },
+                pageLength: 10,
+                order: [[1, 'desc']]
+            });
+        });
+    </script>
+}

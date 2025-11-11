@@ -39,8 +39,15 @@ namespace JconsultGC.Controllers
             return View(users);
         }
 
-        public IActionResult CreateUser()
+        public async Task<IActionResult> CreateUser()
         {
+            var services = await _context.Services!.Where(s => s.Actif).ToListAsync();
+            ViewBag.Services = services.Select(s => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+            {
+                Value = s.Id.ToString(),
+                Text = s.Nom
+            }).ToList();
+            
             return View();
         }
 
@@ -54,7 +61,8 @@ namespace JconsultGC.Controllers
                     UserName = model.Email,
                     Email = model.Email,
                     Nom = model.Nom,
-                    Prenom = model.Prenom
+                    Prenom = model.Prenom,
+                    ServiceId = model.ServiceId
                 };
 
                 var result = await _userManager.CreateAsync(user, model.Password);
@@ -69,6 +77,15 @@ namespace JconsultGC.Controllers
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
+
+            // Re-populate services dropdown if validation fails
+            var services = await _context.Services!.Where(s => s.Actif).ToListAsync();
+            ViewBag.Services = services.Select(s => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+            {
+                Value = s.Id.ToString(),
+                Text = s.Nom
+            }).ToList();
+            
             return View(model);
         }
 
@@ -87,8 +104,16 @@ namespace JconsultGC.Controllers
                 Email = user.Email ?? string.Empty,
                 Nom = user.Nom,
                 Prenom = user.Prenom,
-                Role = userRoles.FirstOrDefault() ?? "User"
+                Role = userRoles.FirstOrDefault() ?? "User",
+                ServiceId = user.ServiceId ?? 0
             };
+
+            var services = await _context.Services!.Where(s => s.Actif).ToListAsync();
+            ViewBag.Services = services.Select(s => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+            {
+                Value = s.Id.ToString(),
+                Text = s.Nom
+            }).ToList();
 
             return View(model);
         }
@@ -108,6 +133,7 @@ namespace JconsultGC.Controllers
                 user.UserName = model.Email;
                 user.Nom = model.Nom;
                 user.Prenom = model.Prenom;
+                user.ServiceId = model.ServiceId;
 
                 var result = await _userManager.UpdateAsync(user);
                 if (result.Succeeded)
@@ -124,6 +150,15 @@ namespace JconsultGC.Controllers
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
+
+            // Re-populate services dropdown if validation fails
+            var services = await _context.Services!.Where(s => s.Actif).ToListAsync();
+            ViewBag.Services = services.Select(s => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+            {
+                Value = s.Id.ToString(),
+                Text = s.Nom
+            }).ToList();
+            
             return View(model);
         }
 

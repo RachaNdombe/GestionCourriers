@@ -96,6 +96,22 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29ycmVzcG9uZGFudFxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/CourriersArchive/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ291cnJpZXJzQXJjaGl2ZVxEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/CourriersArchive/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ291cnJpZXJzQXJjaGl2ZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/CourriersArchive/Recherche.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ291cnJpZXJzQXJjaGl2ZVxSZWNoZXJjaGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/CourriersArchive/Stats.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ291cnJpZXJzQXJjaGl2ZVxTdGF0cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/CourriersEntrant/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ291cnJpZXJzRW50cmFudFxDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -110,6 +126,18 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/CourriersEntrant/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ291cnJpZXJzRW50cmFudFxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/Diagnostic/DiagnosticResults.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGlhZ25vc3RpY1xEaWFnbm9zdGljUmVzdWx0cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/FixCourrierStatus/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRml4Q291cnJpZXJTdGF0dXNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/FixExistingUsers/FixResults.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRml4RXhpc3RpbmdVc2Vyc1xGaXhSZXN1bHRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/Home/Index.cshtml]
@@ -138,6 +166,22 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/Indexateur/ToValidate.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW5kZXhhdGV1clxUb1ZhbGlkYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/Service/Courriers.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2VydmljZVxDb3VycmllcnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/Service/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2VydmljZVxEYXNoYm9hcmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/Service/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2VydmljZVxEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/Service/Signer.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2VydmljZVxTaWduZXIuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/Shared/Error.cshtml]
@@ -184,12 +228,28 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Sb2xlTWVudVBhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/Shared/_ServiceExpMenu.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9TZXJ2aWNlRXhwTWVudS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/Shared/_TypeDossierForm.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9UeXBlRG9zc2llckZvcm0uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/Validation/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmFsaWRhdGlvblxEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/Validation/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmFsaWRhdGlvblxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/Viseur/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVmlzZXVyXERhc2hib2FyZC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Rachel Ndombe/Documents/JconsultProject/JconsultGC/Views/_ViewImports.cshtml]

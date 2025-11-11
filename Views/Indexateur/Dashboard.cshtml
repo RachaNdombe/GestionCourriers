@@ -43,6 +43,16 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Courriers signés</h5>
+                    <a href="#courriersSignes" class="text-white text-decoration-none">
+                        <p class="card-text display-4">@Model.CourriersSignes</p>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="row mt-4">
@@ -149,6 +159,56 @@
         </div>
     </div>
 
+    <!-- Courriers signés -->
+    <div class="row mt-4" id="courriersSignes">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Courriers signés</h5>
+                    <small class="text-muted">Courriers signés par les services, prêts à être archivés</small>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        @if (Model.CourriersSignesList != null && Model.CourriersSignesList.Any())
+                        {
+                            @foreach (var courrier in Model.CourriersSignesList)
+                            {
+                                <div class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <div class="flex-grow-1">
+                                            <a href="@Url.Action("Details", "CourriersEntrant", new { id = courrier.Id })" class="text-decoration-none text-dark">
+                                                <h6 class="mb-1">@courrier.ReferenceNumero</h6>
+                                                <p class="mb-1">@courrier.Objet</p>
+                                                <small>
+                                                    <span class="badge @GetStatusBadgeClass(courrier.Statut)">@courrier.Statut</span>
+                                                    - @(courrier.CategorieCourrier?.Nom ?? "Non catégorisé")
+                                                </small>
+                                            </a>
+                                        </div>
+                                        <div class="ms-3">
+                                            <form method="post" action="@Url.Action("Archiver", "CourriersArchive", new { id = courrier.Id })" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('Êtes-vous sûr de vouloir archiver ce courrier ?')">
+                                                    <i class="bi bi-archive"></i> Archiver
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="list-group-item text-center text-muted">
+                                Aucun courrier signé
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row mt-4">
         <!-- Actions rapides -->
         <div class="col-12">
@@ -156,6 +216,12 @@
                 <a asp-action="Create" class="btn btn-primary">
                     <i class="bi bi-plus-circle"></i> Nouveau courrier
                 </a>
+                @if (User.IsInRole("Viseur"))
+                {
+                    <a asp-action="Dashboard" asp-controller="Viseur" class="btn btn-warning">
+                        <i class="bi bi-check-circle"></i> Tableau de bord Viseur
+                    </a>
+                }
                 <button type="button" class="btn btn-outline-primary" onclick="refreshDashboard()">
                     <i class="bi bi-arrow-clockwise"></i> Actualiser
                 </button>
@@ -174,6 +240,7 @@
             "rejeté" => "bg-danger",
             "archivé" => "bg-secondary",
             "a saisir" => "bg-info",
+            "signé" => "bg-primary",
             _ => "bg-light text-dark"
         };
     }

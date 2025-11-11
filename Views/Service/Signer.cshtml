@@ -1,0 +1,113 @@
+@model JconsultGC.Models.Courrier
+
+@{
+    ViewData["Title"] = "Signature du courrier";
+}
+
+<div class="container mt-4">
+    <h2>Signature du courrier</h2>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">Résumé du courrier</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-4">N° d'ordre:</dt>
+                        <dd class="col-sm-8">@Model.OrdreNumero</dd>
+
+                        <dt class="col-sm-4">Objet:</dt>
+                        <dd class="col-sm-8">@Model.Objet</dd>
+
+                        <dt class="col-sm-4">Expéditeur:</dt>
+                        <dd class="col-sm-8">@(Model.Correspondant?.Nom ?? "Inconnu")</dd>
+
+                        <dt class="col-sm-4">Catégorie:</dt>
+                        <dd class="col-sm-8">@(Model.CategorieCourrier?.Nom ?? "Non spécifié")</dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-4">Service:</dt>
+                        <dd class="col-sm-8">@(Model.Service?.Nom ?? "Non spécifié")</dd>
+
+                        <dt class="col-sm-4">Date réception:</dt>
+                        <dd class="col-sm-8">@Model.DateReception?.ToString("dd/MM/yyyy")</dd>
+
+                        <dt class="col-sm-4">Statut:</dt>
+                        <dd class="col-sm-8"><span class="badge bg-success">Traité</span></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">Signature du courrier</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i>
+                <strong>Information importante :</strong> La signature marque la fin du traitement du courrier. 
+                Une fois signé, le courrier sera considéré comme définitivement traité.
+            </div>
+
+            <form method="post" action="@Url.Action("Signer", "Service", new { id = Model.Id })">
+                <div class="mb-3">
+                    <label for="signatureNote" class="form-label">Note de signature (optionnel)</label>
+                    <textarea class="form-control" id="signatureNote" name="signatureNote" rows="4" 
+                              placeholder="Vous pouvez ajouter une note concernant la signature ou le traitement final..."></textarea>
+                    <div class="form-text">Cette note sera enregistrée dans l'historique du courrier.</div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="confirmationCheck" required>
+                        <label class="form-check-label" for="confirmationCheck">
+                            Je confirme avoir traité ce courrier et être prêt à le signer
+                        </label>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary" id="signerBtn" disabled>
+                        <i class="bi bi-pen-fill"></i> Signer le courrier
+                    </button>
+                    <a href="@Url.Action("Details", "Service", new { id = Model.Id })" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour aux détails
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Activer/désactiver le bouton de signature selon la confirmation
+        const confirmationCheck = document.getElementById('confirmationCheck');
+        const signerBtn = document.getElementById('signerBtn');
+
+        confirmationCheck.addEventListener('change', function() {
+            signerBtn.disabled = !this.checked;
+        });
+
+        // Confirmation avant signature
+        document.querySelector('form').addEventListener('submit', function(e) {
+            if (!confirm('Êtes-vous sûr de vouloir signer ce courrier ? Cette action est définitive.')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+}

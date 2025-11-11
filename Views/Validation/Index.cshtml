@@ -1,0 +1,91 @@
+@model JconsultGC.Controllers.ValidationIndexViewModel
+
+@{
+    ViewData["Title"] = "Courriers à valider";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Courriers à valider</h2>
+        <a asp-action="Dashboard" asp-controller="Dashboard" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Retour au tableau de bord
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (!Model.Courriers.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Aucun courrier en attente de validation.
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <i class="bi bi-clock-history"></i> 
+                    @Model.Courriers.Count courrier(s) en attente de validation
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Numéro d'ordre</th>
+                                <th>Objet</th>
+                                <th>Expéditeur</th>
+                                <th>Date réception</th>
+                                <th>Indexateur</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var courrier in Model.Courriers)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@courrier.OrdreNumero</strong>
+                                        @if (!string.IsNullOrEmpty(courrier.RegistreNumero))
+                                        {
+                                            <br>
+                                            <small class="text-muted">Registre: @courrier.RegistreNumero</small>
+                                        }
+                                    </td>
+                                    <td>@courrier.Objet</td>
+                                    <td>@(courrier.Correspondant?.Nom ?? "Non spécifié")</td>
+                                    <td>@(courrier.DateReception?.ToShortDateString() ?? "Non spécifiée")</td>
+                                    <td>@(courrier.CreatedBy?.Nom ?? "Inconnu") @(courrier.CreatedBy?.Prenom)</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Details" asp-route-id="@courrier.Id" 
+                                               class="btn btn-primary btn-sm">
+                                                <i class="bi bi-eye"></i> Voir
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

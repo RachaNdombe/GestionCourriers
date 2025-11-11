@@ -1,0 +1,145 @@
+@model JconsultGC.Controllers.ViseurDashboardViewModel
+
+@{
+    ViewData["Title"] = "Tableau de bord Viseur";
+}
+
+<div class="container mt-4">
+    <h2>Tableau de bord Viseur</h2>
+
+    <div class="row mt-4">
+        <!-- Stats Cards -->
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">À valider</h5>
+                    <a href="@Url.Action("Index", "Validation")" class="text-dark text-decoration-none">
+                        <p class="card-text display-4">@Model.CourriersAValiderCount</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Validés aujourd'hui</h5>
+                    <p class="card-text display-4">@Model.CourriersValidesAujourdhui</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Rejetés aujourd'hui</h5>
+                    <p class="card-text display-4">@Model.CourriersRejetesAujourdhui</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Actions aujourd'hui</h5>
+                    <p class="card-text display-4">@Model.RecentActions.Count</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <!-- Actions récentes -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Mes actions d'aujourd'hui</h5>
+                    <small class="text-muted">@DateTime.Today.ToString("dd/MM/yyyy")</small>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        @if (Model.RecentActions.Any())
+                        {
+                            @foreach (var action in Model.RecentActions)
+                            {
+                                <a href="@Url.Action("Details", "Validation", new { id = action.CourrierId })" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">@action.Action</h6>
+                                        <small>@action.Timestamp.ToString("HH:mm")</small>
+                                    </div>
+                                    <p class="mb-1">@action.Note</p>
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            <div class="list-group-item text-center text-muted">
+                                Aucune action aujourd'hui
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Courriers en attente de validation -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Courriers en attente de validation</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        @if (Model.CourriersAValider.Any())
+                        {
+                            @foreach (var courrier in Model.CourriersAValider)
+                            {
+                                <a href="@Url.Action("Details", "Validation", new { id = courrier.Id })" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">@courrier.OrdreNumero</h6>
+                                        <small>@courrier.DateEnregistrement.ToString("dd/MM/yyyy")</small>
+                                    </div>
+                                    <p class="mb-1">@courrier.Objet</p>
+                                    <small>
+                                        <span class="badge bg-warning">À valider</span>
+                                        - @(courrier.CategorieCourrier?.Nom ?? "Non catégorisé")
+                                        - Indexateur: @(courrier.CreatedBy?.Nom ?? "Inconnu")
+                                    </small>
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            <div class="list-group-item text-center text-muted">
+                                Aucun courrier en attente de validation
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <!-- Actions rapides -->
+        <div class="col-12">
+            <div class="d-flex gap-2">
+                <a asp-action="Index" asp-controller="Validation" class="btn btn-warning">
+                    <i class="bi bi-check-circle"></i> Gérer la validation
+                </a>
+                <a asp-action="Index" asp-controller="Indexateur" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour au tableau de bord
+                </a>
+                <button type="button" class="btn btn-outline-primary" onclick="refreshDashboard()">
+                    <i class="bi bi-arrow-clockwise"></i> Actualiser
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Actualiser manuellement
+        function refreshDashboard() {
+            location.reload();
+        }
+    </script>
+}

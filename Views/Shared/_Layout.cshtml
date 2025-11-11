@@ -56,6 +56,36 @@
                                 </ul>
                             </li>
                         }
+
+                        @if (User.IsInRole("Viseur"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" id="viseurDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Viseur
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="viseurDropdown">
+                                    <li><a class="dropdown-item" asp-controller="Viseur" asp-action="Dashboard">Tableau de Bord</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Validation" asp-action="Index">Validation des Courriers</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="Indexateur" asp-action="Index">Tous les Courriers</a></li>
+                                </ul>
+                            </li>
+                        }
+
+                        @if (User.IsInRole("ServiceExpéditeur"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" id="serviceDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Service
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="serviceDropdown">
+                                    <li><a class="dropdown-item" asp-controller="Service" asp-action="Dashboard">Tableau de Bord</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Service" asp-action="Courriers">Mes Courriers</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="Indexateur" asp-action="Index">Tous les Courriers</a></li>
+                                </ul>
+                            </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
