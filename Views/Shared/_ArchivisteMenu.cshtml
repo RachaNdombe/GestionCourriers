@@ -1,0 +1,32 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Archiviste</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#archivisteNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="archivisteNavbar">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="CourriersArchive" asp-action="Dashboard">
+                        <i class="bi bi-speedometer2"></i> Tableau de bord
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="CourriersArchive" asp-action="Index">
+                        <i class="bi bi-archive"></i> Archives
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="CourriersArchive" asp-action="Recherche">
+                        <i class="bi bi-search"></i> Recherche
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="CourriersArchive" asp-action="Stats">
+                        <i class="bi bi-graph-up"></i> Statistiques
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

@@ -41,7 +41,7 @@ namespace JconsultGC.Controllers
 
         public async Task<IActionResult> CreateUser()
         {
-            var services = await _context.Services!.Where(s => s.Actif).ToListAsync();
+            var services = await _context.Services!.ToListAsync();
             ViewBag.Services = services.Select(s => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
             {
                 Value = s.Id.ToString(),
@@ -79,7 +79,7 @@ namespace JconsultGC.Controllers
             }
 
             // Re-populate services dropdown if validation fails
-            var services = await _context.Services!.Where(s => s.Actif).ToListAsync();
+            var services = await _context.Services!.ToListAsync();
             ViewBag.Services = services.Select(s => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
             {
                 Value = s.Id.ToString(),
@@ -108,7 +108,7 @@ namespace JconsultGC.Controllers
                 ServiceId = user.ServiceId ?? 0
             };
 
-            var services = await _context.Services!.Where(s => s.Actif).ToListAsync();
+            var services = await _context.Services!.ToListAsync();
             ViewBag.Services = services.Select(s => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
             {
                 Value = s.Id.ToString(),
@@ -152,7 +152,7 @@ namespace JconsultGC.Controllers
             }
 
             // Re-populate services dropdown if validation fails
-            var services = await _context.Services!.Where(s => s.Actif).ToListAsync();
+            var services = await _context.Services!.ToListAsync();
             ViewBag.Services = services.Select(s => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
             {
                 Value = s.Id.ToString(),

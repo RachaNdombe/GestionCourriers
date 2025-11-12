@@ -1,158 +1,94 @@
-@model Courrier
+@model JconsultGC.Models.Courrier
 
 @{
     ViewData["Title"] = "Détails du courrier archivé";
 }
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0">@ViewData["Title"]</h1>
-        <div>
-            <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left"></i> Retour à la liste
-            </a>
-            @if (User.IsInRole("Archivage"))
-            {
-                <form method="post" action="@Url.Action("Restaurer", new { id = Model.Id })" 
-                      class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir restaurer ce courrier ?');">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-warning">
-                        <i class="fas fa-undo"></i> Restaurer
-                    </button>
-                </form>
-            }
+<div class="container mt-4">
+    <h2>Détails du courrier archivé</h2>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Informations du courrier</h5>
         </div>
-    </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-4">N° d'ordre:</dt>
+                        <dd class="col-sm-8">@Model.OrdreNumero</dd>
 
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Informations du courrier</h5>
+                        <dt class="col-sm-4">Objet:</dt>
+                        <dd class="col-sm-8">@Model.Objet</dd>
+
+                        <dt class="col-sm-4">Expéditeur:</dt>
+                        <dd class="col-sm-8">@(Model.Correspondant?.Nom ?? "N/A")</dd>
+
+                        <dt class="col-sm-4">Catégorie:</dt>
+                        <dd class="col-sm-8">@(Model.CategorieCourrier?.Nom ?? "N/A")</dd>
+
+                        <dt class="col-sm-4">Nature:</dt>
+                        <dd class="col-sm-8">@(Model.NatureCourrier?.Nom ?? "N/A")</dd>
+                    </dl>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <dl>
-                                <dt>Référence:</dt>
-                                <dd>@Model.ReferenceNumero</dd>
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-4">Mode d'envoi:</dt>
+                        <dd class="col-sm-8">@(Model.ModeEnvoi?.Libelle ?? "N/A")</dd>
 
-                                <dt>Objet:</dt>
-                                <dd>@Model.Objet</dd>
+                        <dt class="col-sm-4">Date enregistrement:</dt>
+                        <dd class="col-sm-8">@Model.DateEnregistrement.ToString("dd/MM/yyyy HH:mm")</dd>
 
-                                <dt>Date de réception:</dt>
-                                <dd>@Model.DateReception?.ToString("dd/MM/yyyy")</dd>
-
-                                <dt>Heure de réception:</dt>
-                                <dd>@Model.HeureRecu</dd>
-
-                                <dt>Nature:</dt>
-                                <dd>@Model.NatureCourrier?.Nom</dd>
-                            </dl>
-                        </div>
-                        <div class="col-md-6">
-                            <dl>
-                                <dt>Correspondant:</dt>
-                                <dd>@Model.Correspondant?.Nom</dd>
-
-                                <dt>Service concerné:</dt>
-                                <dd>@Model.ServiceConcerne</dd>
-
-                                <dt>Catégorie:</dt>
-                                <dd>@Model.CategorieCourrier?.Nom</dd>
-
-                                <dt>Dossier de classement:</dt>
-                                <dd>@Model.DossierClassement?.Titre</dd>
-
-                                <dt>Créé par:</dt>
-                                <dd>@Model.CreatedBy?.Nom @Model.CreatedBy?.Prenom</dd>
-                            </dl>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            @if (Model.Documents != null && Model.Documents.Any())
-            {
-                <div class="card mt-4">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Documents associés</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="list-group">
-                            @foreach (var document in Model.Documents)
+                        <dt class="col-sm-4">Statut:</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.IsArchive)
                             {
-                                <div class="list-group-item">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <i class="fas fa-file-pdf text-danger me-2"></i>
-                                            <span>@document.NomFichier</span>
-                                        </div>
-                                        <small class="text-muted">@document.Taille bytes</small>
-                                    </div>
-                                </div>
+                                <span class="badge bg-success">Archivé</span>
                             }
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Statut</h5>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-info">
-                        <i class="fas fa-archive me-2"></i>
-                        <strong>Archivé</strong>
-                        <br>
-                        <small class="text-muted">Ce courrier est actuellement archivé</small>
-                    </div>
-
-                    <dl>
-                        <dt>Date d'enregistrement:</dt>
-                        <dd>@Model.DateEnregistrement.ToString("dd/MM/yyyy HH:mm")</dd>
-
-                        <dt>Confidentialité:</dt>
-                        <dd>
-                            @switch (Model.Confidentialite)
+                            else if (Model.Statut == "Signé")
                             {
-                                case ConfidentialiteLevel.Public:
-                                    <span class="badge bg-success">Public</span>
-                                    break;
-                                case ConfidentialiteLevel.Interne:
-                                    <span class="badge bg-info">Interne</span>
-                                    break;
-                                case ConfidentialiteLevel.Confidentiel:
-                                    <span class="badge bg-warning">Confidentiel</span>
-                                    break;
-                                case ConfidentialiteLevel.TresConfidentiel:
-                                    <span class="badge bg-danger">Très confidentiel</span>
-                                    break;
+                                <span class="badge bg-warning">Signé (en attente d'archivage)</span>
                             }
-                        </dd>
-
-                        <dt>Priorité:</dt>
-                        <dd>
-                            @switch (Model.Priorite)
+                            else
                             {
-                                case PrioriteLevel.Basse:
-                                    <span class="badge bg-secondary">Basse</span>
-                                    break;
-                                case PrioriteLevel.Normal:
-                                    <span class="badge bg-primary">Normale</span>
-                                    break;
-                                case PrioriteLevel.Haute:
-                                    <span class="badge bg-warning">Haute</span>
-                                    break;
-                                case PrioriteLevel.Urgent:
-                                    <span class="badge bg-danger">Urgente</span>
-                                    break;
+                                <span class="badge bg-secondary">En cours</span>
                             }
                         </dd>
                     </dl>
+                </div>
+            </div>
+
+            <!-- Informations supplémentaires -->
+            @if (!string.IsNullOrEmpty(Model.ReferenceNumero))
+            {
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <dt>Référence:</dt>
+                        <dd>@Model.ReferenceNumero</dd>
+                    </div>
+                </div>
+            }
+
+            <!-- Actions -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour à la liste
+                    </a>
+                    <a asp-action="Dashboard" class="btn btn-primary">
+                        <i class="bi bi-speedometer2"></i> Tableau de bord
+                    </a>
+                    @if (!Model.IsArchive && User.IsInRole("Archiviste"))
+                    {
+                        <form asp-action="Archiver" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <button type="submit" class="btn btn-success" 
+                                    onclick="return confirm('Êtes-vous sûr de vouloir archiver ce courrier ?')">
+                                <i class="bi bi-archive"></i> Archiver
+                            </button>
+                        </form>
+                    }
                 </div>
             </div>
         </div>

@@ -292,6 +292,59 @@ using (var scope = app.Services.CreateScope())
             {
                 logger.LogWarning("Failed to create service user: {Errors}", string.Join(';', createdService.Errors.Select(e => e.Description)));
             }
+
+            // Seed an Archiviste user for testing
+            var archivisteEmail = builder.Configuration["ArchivisteUser:Email"] ?? "archiviste@local";
+            var archivistePassword = builder.Configuration["ArchivisteUser:Password"] ?? "Archive123!";
+
+            var archivisteUser = userManager.FindByEmailAsync(archivisteEmail).GetAwaiter().GetResult();
+            if (archivisteUser == null)
+            {
+                // Utiliser le contexte existant
+                using var archivisteContext = scope.ServiceProvider.GetRequiredService<ProjetIdDbContext>();
+                
+                // Créer un service par défaut s'il n'en existe pas
+                var archivisteService = archivisteContext.Services!.FirstOrDefault();
+                if (archivisteService == null)
+                {
+                    archivisteService = new Service
+                    {
+                        Nom = "Service Archives",
+                        Code = "SERV-ARCH",
+                        Description = "Service d'archives par défaut",
+                        Actif = true,
+                        CreatedAtUtc = DateTime.UtcNow,
+                        UpdatedAtUtc = DateTime.UtcNow
+                    };
+                    archivisteContext.Services!.Add(archivisteService);
+                    archivisteContext.SaveChanges();
+                }
+
+                var au = new User
+                {
+                    UserName = archivisteEmail,
+                    Email = archivisteEmail,
+                    Nom = "Archiviste",
+                    Prenom = "User",
+                    Societe = "Administration",
+                    Telephone = "0000000000",
+                    Role = UserRole.Archiviste,
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow,
+                    ServiceId = archivisteService.Id
+                };
+
+                var createdArchiviste = userManager.CreateAsync(au, archivistePassword).GetAwaiter().GetResult();
+                if (createdArchiviste.Succeeded)
+                {
+                    userManager.AddToRoleAsync(au, UserRole.Archiviste.ToString()).GetAwaiter().GetResult();
+                    logger.LogInformation("Seeded archiviste user '{Email}' with role Archiviste (password: {Pwd}).", archivisteEmail, archivistePassword);
+                }
+                else
+                {
+                    logger.LogWarning("Failed to create archiviste user: {Errors}", string.Join(';', createdArchiviste.Errors.Select(e => e.Description)));
+                }
+            }
         }
     }
     catch (Exception ex)

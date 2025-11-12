@@ -1,0 +1,75 @@
+@model JconsultGC.Models.Courrier
+
+@{
+    ViewData["Title"] = "Modifier le Courrier Signé";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <div class="card">
+                <div class="card-header bg-warning">
+                    <h2 class="card-title text-white">@ViewData["Title"]</h2>
+                    <p class="text-white mb-0">Vous pouvez modifier certains champs de ce courrier signé. Toutes les modifications seront enregistrées dans l'historique.</p>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Modifier">
+                        <input type="hidden" asp-for="Id" />
+                        
+                        <div class="alert alert-info">
+                            <h5 class="alert-heading">Information</h5>
+                            <p class="mb-0">Ce courrier a été signé. Toute modification sera tracée dans l'historique.</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Objet" class="form-label">Objet *</label>
+                            <input asp-for="Objet" class="form-control" />
+                            <span asp-validation-for="Objet" class="text-danger"></span>
+                        </div>
+
+                        <!-- Ajouter d'autres champs modifiables selon le modèle Courrier -->
+                        <!-- Exemple: Note, Référence, etc. -->
+                        
+                        <div class="mb-3">
+                            <label for="raisonModification" class="form-label">Raison de la modification *</label>
+                            <textarea name="raisonModification" class="form-control" rows="3" required></textarea>
+                            <div class="form-text">Veuillez expliquer pourquoi vous modifiez ce courrier signé.</div>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Informations du courrier (non modifiables)</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <strong>Service:</strong> @Model.Service?.ToString()<br>
+                                        <strong>Correspondant:</strong> @Model.Correspondant?.ToString()<br>
+                                        <strong>Nature:</strong> @Model.NatureCourrier?.ToString()
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Dossier:</strong> @Model.DossierClassement?.ToString()<br>
+                                        <strong>Type:</strong> @Model.TypeDossier?.ToString()<br>
+                                        <strong>Mode d'envoi:</strong> @Model.ModeEnvoi?.ToString()
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Details" asp-controller="Courriers" asp-route-id="@Model.Id" class="btn btn-secondary">Annuler</a>
+                            <div>
+                                <a asp-action="Historique" asp-route-id="@Model.Id" class="btn btn-outline-info me-2">Voir l'historique</a>
+                                <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

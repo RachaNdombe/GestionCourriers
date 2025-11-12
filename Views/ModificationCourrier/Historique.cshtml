@@ -1,0 +1,102 @@
+@model IEnumerable<JconsultGC.Models.ModificationCourrier>
+
+@{
+    ViewData["Title"] = "Historique des Modifications";
+    var courrier = ViewData["Courrier"] as JconsultGC.Models.Courrier;
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">@ViewData["Title"]</h2>
+                    @if (courrier != null)
+                    {
+                        <p class="mb-0">Courrier: @courrier.Objet</p>
+                    }
+                </div>
+                <div class="card-body">
+                    @if (!Model.Any())
+                    {
+                        <div class="alert alert-info">
+                            <h5 class="alert-heading">Aucune modification</h5>
+                            <p class="mb-0">Aucune modification n'a été apportée à ce courrier.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Utilisateur</th>
+                                        <th>Champ modifié</th>
+                                        <th>Ancienne valeur</th>
+                                        <th>Nouvelle valeur</th>
+                                        <th>Raison</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var modification in Model)
+                                    {
+                                        <tr>
+                                            <td>@modification.DateModification.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>@modification.User?.UserName</td>
+                                            <td>
+                                                <span class="badge bg-info">@modification.ChampModifie</span>
+                                            </td>
+                                            <td>
+                                                @if (string.IsNullOrEmpty(modification.AncienneValeur))
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                                else
+                                                {
+                                                    @modification.AncienneValeur
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (string.IsNullOrEmpty(modification.NouvelleValeur))
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                                else
+                                                {
+                                                    @modification.NouvelleValeur
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (string.IsNullOrEmpty(modification.RaisonModification))
+                                                {
+                                                    <span class="text-muted">Non spécifiée</span>
+                                                }
+                                                else
+                                                {
+                                                    @modification.RaisonModification
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+
+                    <div class="mt-4">
+                        @if (courrier != null)
+                        {
+                            <a asp-action="Modifier" asp-route-id="@courrier.Id" class="btn btn-primary me-2">Modifier le courrier</a>
+                            <a asp-action="Details" asp-controller="Courriers" asp-route-id="@courrier.Id" class="btn btn-secondary">Retour au courrier</a>
+                        }
+                        else
+                        {
+                            <a href="javascript:history.back()" class="btn btn-secondary">Retour</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

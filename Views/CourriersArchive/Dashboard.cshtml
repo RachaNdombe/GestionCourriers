@@ -1,0 +1,194 @@
+@using JconsultGC.Models
+@model dynamic
+
+@{
+    ViewData["Title"] = "Tableau de bord Archiviste";
+}
+
+<div class="container mt-4">
+    <h2>Tableau de bord Archiviste</h2>
+    
+    <!-- Statistiques -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Courriers signés aujourd'hui</h5>
+                    <h2 class="card-text">@Model.Statistiques.TotalCourriersSignesAujourdhui</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">En attente d'archivage</h5>
+                    <h2 class="card-text">@Model.Statistiques.CourriersEnAttenteArchivage</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">Archivés aujourd'hui</h5>
+                    <h2 class="card-text">@Model.Statistiques.CourriersArchivesAujourdhui</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-secondary">
+                <div class="card-body">
+                    <h5 class="card-title">Total archives</h5>
+                    <h2 class="card-text">@Model.Statistiques.TotalCourriersArchives</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Actions rapides</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="ArchiverTousAujourdhui" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-success"
+                                onclick="return confirm('Êtes-vous sûr de vouloir archiver tous les courriers signés du jour ?')">
+                            <i class="bi bi-archive"></i> Archiver tous les courriers du jour
+                        </button>
+                    </form>
+                    <a asp-action="CourriersSignes" class="btn btn-info">
+                        <i class="bi bi-list-check"></i> Voir tous les courriers signés
+                    </a>
+                    <a asp-action="Index" class="btn btn-primary">
+                        <i class="bi bi-folder"></i> Voir toutes les archives
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des courriers signés du jour -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Courriers signés aujourd'hui (@DateTime.Today.ToString("dd/MM/yyyy"))</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.CourriersSignes.Count > 0)
+            {
+                <form asp-action="ArchiverMultiple" method="post" id="archiveForm">
+                    @Html.AntiForgeryToken()
+                    
+                    <div class="mb-3">
+                        <button type="submit" class="btn btn-success" id="archiveSelectedBtn">
+                            <i class="bi bi-archive"></i> Archiver les courriers sélectionnés
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" id="selectAll" />
+                                    </th>
+                                    <th>N° d'ordre</th>
+                                    <th>Objet</th>
+                                    <th>Expéditeur</th>
+                                    <th>Catégorie</th>
+                                    <th>Nature</th>
+                                    <th>Date signature</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var courrier in Model.CourriersSignes)
+                                {
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" name="courrierIds" value="@courrier.Id" class="courrier-checkbox" />
+                                        </td>
+                                        <td>@courrier.OrdreNumero</td>
+                                        <td>@courrier.Objet</td>
+                                        <td>@(courrier.Correspondant?.Nom ?? "N/A")</td>
+                                        <td>@(courrier.CategorieCourrier?.Nom ?? "N/A")</td>
+                                        <td>@(courrier.NatureCourrier?.Nom ?? "N/A")</td>
+                                        <td>@courrier.DateEnregistrement.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>
+                                            <a asp-action="Details" asp-route-id="@courrier.Id" class="btn btn-sm btn-info" title="Détails">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <form asp-action="Archiver" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@courrier.Id" />
+                                                <button type="submit" class="btn btn-sm btn-success" title="Archiver">
+                                                    <i class="bi bi-archive"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> Aucun courrier signé disponible pour l'archivage aujourd'hui.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Gestion de la sélection multiple
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.courrier-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateArchiveButton();
+        });
+
+        // Mise à jour du bouton d'archivage
+        document.querySelectorAll('.courrier-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', updateArchiveButton);
+        });
+
+        function updateArchiveButton() {
+            const selectedCount = document.querySelectorAll('.courrier-checkbox:checked').length;
+            const archiveBtn = document.getElementById('archiveSelectedBtn');
+            
+            if (selectedCount > 0) {
+                archiveBtn.disabled = false;
+                archiveBtn.innerHTML = `<i class="bi bi-archive"></i> Archiver ${selectedCount} courrier(s) sélectionné(s)`;
+            } else {
+                archiveBtn.disabled = true;
+                archiveBtn.innerHTML = `<i class="bi bi-archive"></i> Archiver les courriers sélectionnés`;
+            }
+        }
+
+        // Confirmation avant archivage multiple
+        document.getElementById('archiveForm').addEventListener('submit', function(e) {
+            const selectedCount = document.querySelectorAll('.courrier-checkbox:checked').length;
+            if (selectedCount === 0) {
+                e.preventDefault();
+                alert('Veuillez sélectionner au moins un courrier à archiver.');
+                return;
+            }
+            
+            if (!confirm(`Êtes-vous sûr de vouloir archiver ${selectedCount} courrier(s) ?`)) {
+                e.preventDefault();
+            }
+        });
+
+        // Initialisation
+        updateArchiveButton();
+    </script>
+}

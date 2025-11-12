@@ -30,6 +30,7 @@ public class ProjetIdDbContext : IdentityDbContext<User>
     public DbSet<ParametreSociete>? ParametresSociete { get; set; }
     public DbSet<Email>? Emails { get; set; }
     public DbSet<CourrierHistory>? CourrierHistories { get; set; }
+    public DbSet<ModificationCourrier>? ModificationsCourrier { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

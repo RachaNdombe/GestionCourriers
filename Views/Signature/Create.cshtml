@@ -1,0 +1,87 @@
+@model JconsultGC.Models.Signature
+
+@{
+    ViewData["Title"] = "Créer une Signature";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">@ViewData["Title"]</h2>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Nom" class="form-label">Nom de la signature *</label>
+                            <input asp-for="Nom" class="form-control" />
+                            <span asp-validation-for="Nom" class="text-danger"></span>
+                            <div class="form-text">Donnez un nom significatif à votre signature (ex: "Signature officielle", "Signature rapide")</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                            <div class="form-text">Description optionnelle de votre signature</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Type" class="form-label">Type de signature *</label>
+                            <select asp-for="Type" class="form-select" id="typeSignature">
+                                <option value="manuelle">Signature manuelle</option>
+                                <option value="numerique">Signature numérique</option>
+                            </select>
+                            <span asp-validation-for="Type" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3" id="numeriqueSection" style="display: none;">
+                            <label asp-for="CheminSignature" class="form-label">Fichier de signature numérique</label>
+                            <input asp-for="CheminSignature" class="form-control" />
+                            <span asp-validation-for="CheminSignature" class="text-danger"></span>
+                            <div class="form-text">Chemin vers votre fichier de signature numérique (PNG, JPG, PDF)</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input asp-for="EstParDefaut" class="form-check-input" />
+                                <label asp-for="EstParDefaut" class="form-check-label">
+                                    Définir comme signature par défaut
+                                </label>
+                            </div>
+                            <div class="form-text">Cette signature sera utilisée par défaut lors de la signature des courriers</div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">Retour à la liste</a>
+                            <button type="submit" class="btn btn-primary">Créer la signature</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const typeSelect = document.getElementById('typeSignature');
+            const numeriqueSection = document.getElementById('numeriqueSection');
+
+            function toggleNumeriqueSection() {
+                if (typeSelect.value === 'numerique') {
+                    numeriqueSection.style.display = 'block';
+                } else {
+                    numeriqueSection.style.display = 'none';
+                }
+            }
+
+            typeSelect.addEventListener('change', toggleNumeriqueSection);
+            toggleNumeriqueSection(); // Initial call
+        });
+    </script>
+}

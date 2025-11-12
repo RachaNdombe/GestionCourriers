@@ -1,0 +1,89 @@
+@model IEnumerable<JconsultGC.Models.Signature>
+
+@{
+    ViewData["Title"] = "Mes Signatures";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>@ViewData["Title"]</h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nouvelle Signature
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <h4 class="alert-heading">Aucune signature</h4>
+            <p>Vous n'avez pas encore créé de signature. Créez votre première signature pour pouvoir signer vos courriers.</p>
+            <a asp-action="Create" class="btn btn-primary">Créer une signature</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var signature in Model)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 @(signature.EstParDefaut ? "border-primary" : "")">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">@signature.Nom</h5>
+                            @if (signature.EstParDefaut)
+                            {
+                                <span class="badge bg-primary">Par défaut</span>
+                            }
+                        </div>
+                        <div class="card-body">
+                            @if (!string.IsNullOrEmpty(signature.Description))
+                            {
+                                <p class="card-text">@signature.Description</p>
+                            }
+                            
+                            <div class="mb-2">
+                                <strong>Type:</strong> 
+                                <span class="badge @(signature.Type == "numerique" ? "bg-success" : "bg-info")">
+                                    @(signature.Type == "numerique" ? "Signature numérique" : "Signature manuelle")
+                                </span>
+                            </div>
+                            
+                            @if (!string.IsNullOrEmpty(signature.CheminSignature))
+                            {
+                                <div class="mb-2">
+                                    <strong>Fichier:</strong> 
+                                    <small class="text-muted">@signature.CheminSignature</small>
+                                </div>
+                            }
+                            
+                            <div class="text-muted small">
+                                Créée le: @signature.DateCreation.ToString("dd/MM/yyyy")
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="btn-group w-100">
+                                @if (!signature.EstParDefaut)
+                                {
+                                    <form asp-action="SetDefault" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@signature.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-star"></i>
+                                        </button>
+                                    </form>
+                                }
+                                <a asp-action="Edit" asp-route-id="@signature.Id" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette signature ?');">
+                                    <input type="hidden" name="id" value="@signature.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

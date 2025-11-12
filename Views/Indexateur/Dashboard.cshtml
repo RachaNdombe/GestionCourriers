@@ -43,7 +43,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3" style="margin-top: 50px;">
             <div class="card bg-info text-white">
                 <div class="card-body">
                     <h5 class="card-title">Courriers signés</h5>
@@ -173,28 +173,21 @@
                         {
                             @foreach (var courrier in Model.CourriersSignesList)
                             {
-                                <div class="list-group-item list-group-item-action">
+                                <a href="@Url.Action("Details", "CourriersEntrant", new { id = courrier.Id })" class="list-group-item list-group-item-action">
                                     <div class="d-flex w-100 justify-content-between">
-                                        <div class="flex-grow-1">
-                                            <a href="@Url.Action("Details", "CourriersEntrant", new { id = courrier.Id })" class="text-decoration-none text-dark">
-                                                <h6 class="mb-1">@courrier.ReferenceNumero</h6>
-                                                <p class="mb-1">@courrier.Objet</p>
-                                                <small>
-                                                    <span class="badge @GetStatusBadgeClass(courrier.Statut)">@courrier.Statut</span>
-                                                    - @(courrier.CategorieCourrier?.Nom ?? "Non catégorisé")
-                                                </small>
-                                            </a>
+                                        <div>
+                                            <h6 class="mb-1">@courrier.ReferenceNumero</h6>
+                                            <p class="mb-1">@courrier.Objet</p>
+                                            <small>
+                                                <span class="badge @GetStatusBadgeClass(courrier.Statut)">@courrier.Statut</span>
+                                                - @(courrier.CategorieCourrier?.Nom ?? "Non catégorisé")
+                                            </small>
                                         </div>
-                                        <div class="ms-3">
-                                            <form method="post" action="@Url.Action("Archiver", "CourriersArchive", new { id = courrier.Id })" class="d-inline">
-                                                @Html.AntiForgeryToken()
-                                                <button type="submit" class="btn btn-sm btn-outline-success" onclick="return confirm('Êtes-vous sûr de vouloir archiver ce courrier ?')">
-                                                    <i class="bi bi-archive"></i> Archiver
-                                                </button>
-                                            </form>
+                                        <div>
+                                            <small class="text-muted">En attente d'archivage</small>
                                         </div>
                                     </div>
-                                </div>
+                                </a>
                             }
                         }
                         else

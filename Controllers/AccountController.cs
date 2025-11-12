@@ -67,6 +67,10 @@ public class AccountController : Controller
                     {
                         return RedirectToAction("Index", "Validation");
                     }
+                    else if (await _userManager.IsInRoleAsync(user, "Archiviste"))
+                    {
+                        return RedirectToAction("Dashboard", "CourriersArchive");
+                    }
                     return RedirectToAction("Index", "Home");
                 }
             }

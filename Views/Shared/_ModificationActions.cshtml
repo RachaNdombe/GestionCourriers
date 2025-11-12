@@ -1,0 +1,27 @@
+@model JconsultGC.Models.Courrier
+
+@if (Model.Statut == "Signé")
+{
+    <div class="card mt-4">
+        <div class="card-header bg-warning">
+            <h6 class="card-title mb-0 text-white">
+                <i class="fas fa-edit"></i> Actions de Modification
+            </h6>
+        </div>
+        <div class="card-body">
+            <p class="card-text">
+                Ce courrier a été signé. Vous pouvez modifier certains champs tout en conservant une trace de toutes les modifications.
+            </p>
+            <div class="btn-group">
+                <a asp-controller="ModificationCourrier" asp-action="Modifier" asp-route-id="@Model.Id" 
+                   class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Modifier le courrier
+                </a>
+                <a asp-controller="ModificationCourrier" asp-action="Historique" asp-route-id="@Model.Id" 
+                   class="btn btn-outline-info">
+                    <i class="fas fa-history"></i> Voir l'historique
+                </a>
+            </div>
+        </div>
+    </div>
+}

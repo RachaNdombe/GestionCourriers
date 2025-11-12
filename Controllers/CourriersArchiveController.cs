@@ -68,7 +68,7 @@ namespace JconsultGC.Controllers
         // POST: CourriersArchive/Archiver/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Archivage,Indexateur")]
+        [Authorize(Roles = "Archiviste")]
         public async Task<IActionResult> Archiver(int id)
         {
             var courrier = await _context.Courriers.FindAsync(id);
@@ -103,7 +103,7 @@ namespace JconsultGC.Controllers
         // POST: CourriersArchive/Restaurer/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Archivage")]
+        [Authorize(Roles = "Archiviste")]
         public async Task<IActionResult> Restaurer(int id)
         {
             var courrier = await _context.Courriers.FindAsync(id);
@@ -179,7 +179,7 @@ namespace JconsultGC.Controllers
         }
 
         // GET: CourriersArchive/Stats
-        [Authorize(Roles = "Archivage,Admin")]
+        [Authorize(Roles = "Archiviste,Admin")]
         public async Task<IActionResult> Stats()
         {
             var stats = new
@@ -209,6 +209,163 @@ namespace JconsultGC.Controllers
             };
 
             return View(stats);
+        }
+
+        // GET: CourriersArchive/Dashboard - Vue pour l'archiviste
+        [Authorize(Roles = "Archiviste")]
+        public async Task<IActionResult> Dashboard()
+        {
+            var today = DateTime.Today;
+            
+            // Récupérer les courriers signés du jour
+            var courriersSignesAujourdhui = await _context.Courriers
+                .Include(c => c.CreatedBy)
+                .Include(c => c.Correspondant)
+                .Include(c => c.CategorieCourrier)
+                .Include(c => c.NatureCourrier)
+                .Where(c => c.Statut == "Signé" && !c.IsArchive &&
+                    _context.CourrierHistories.Any(h =>
+                        h.CourrierId == c.Id &&
+                        h.Action == "Signé" &&
+                        h.Timestamp.Date == today))
+                .OrderByDescending(c => c.DateEnregistrement)
+                .ToListAsync();
+
+            // Statistiques pour le dashboard
+            var stats = new
+            {
+                TotalCourriersSignesAujourdhui = courriersSignesAujourdhui.Count,
+                TotalCourriersArchives = await _context.Courriers.CountAsync(c => c.IsArchive),
+                CourriersEnAttenteArchivage = await _context.Courriers
+                    .CountAsync(c => c.Statut == "Signé" && !c.IsArchive &&
+                        _context.CourrierHistories.Any(h =>
+                            h.CourrierId == c.Id &&
+                            h.Action == "Signé" &&
+                            h.Timestamp.Date == today)),
+                CourriersArchivesAujourdhui = await _context.Courriers
+                    .CountAsync(c => c.IsArchive && c.DateEnregistrement.Date == today)
+            };
+
+            var viewModel = new
+            {
+                CourriersSignes = courriersSignesAujourdhui,
+                Statistiques = stats
+            };
+
+            return View(viewModel);
+        }
+
+        // POST: CourriersArchive/ArchiverMultiple - Archivage multiple des courriers signés
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Archiviste")]
+        public async Task<IActionResult> ArchiverMultiple(List<int> courrierIds)
+        {
+            if (courrierIds == null || !courrierIds.Any())
+            {
+                TempData["ErrorMessage"] = "Aucun courrier sélectionné pour l'archivage.";
+                return RedirectToAction(nameof(Dashboard));
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            var courriers = await _context.Courriers
+                .Where(c => courrierIds.Contains(c.Id) && c.Statut == "Signé" && !c.IsArchive)
+                .ToListAsync();
+
+            if (!courriers.Any())
+            {
+                TempData["ErrorMessage"] = "Aucun courrier signé valide trouvé pour l'archivage.";
+                return RedirectToAction(nameof(Dashboard));
+            }
+
+            foreach (var courrier in courriers)
+            {
+                courrier.IsArchive = true;
+
+                // Enregistrer l'action dans l'historique
+                var historiqueAction = new CourrierHistory
+                {
+                    CourrierId = courrier.Id,
+                    Action = "ARCHIVE",
+                    Note = "Courrier archivé par l'archiviste",
+                    UserId = user.Id
+                };
+                _context.CourrierHistories.Add(historiqueAction);
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"{courriers.Count} courrier(s) archivé(s) avec succès !";
+            return RedirectToAction(nameof(Dashboard));
+        }
+
+        // GET: CourriersArchive/CourriersSignes - Liste de tous les courriers signés non archivés
+        [Authorize(Roles = "Archiviste")]
+        public async Task<IActionResult> CourriersSignes()
+        {
+            var courriersSignes = await _context.Courriers
+                .Include(c => c.CreatedBy)
+                .Include(c => c.Correspondant)
+                .Include(c => c.CategorieCourrier)
+                .Include(c => c.NatureCourrier)
+                .Where(c => c.Statut == "Signé" && !c.IsArchive)
+                .OrderByDescending(c => c.DateEnregistrement)
+                .ToListAsync();
+
+            return View(courriersSignes);
+        }
+
+        // POST: CourriersArchive/ArchiverTousAujourdhui - Archivage de tous les courriers signés du jour
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Archiviste")]
+        public async Task<IActionResult> ArchiverTousAujourdhui()
+        {
+            var today = DateTime.Today;
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            var courriers = await _context.Courriers
+                .Where(c => c.Statut == "Signé" && !c.IsArchive &&
+                    _context.CourrierHistories.Any(h =>
+                        h.CourrierId == c.Id &&
+                        h.Action == "Signé" &&
+                        h.Timestamp.Date == today))
+                .ToListAsync();
+
+            if (!courriers.Any())
+            {
+                TempData["ErrorMessage"] = "Aucun courrier signé disponible pour l'archivage aujourd'hui.";
+                return RedirectToAction(nameof(Dashboard));
+            }
+
+            foreach (var courrier in courriers)
+            {
+                courrier.IsArchive = true;
+
+                // Enregistrer l'action dans l'historique
+                var historiqueAction = new CourrierHistory
+                {
+                    CourrierId = courrier.Id,
+                    Action = "ARCHIVE",
+                    Note = "Courrier archivé automatiquement par l'archiviste",
+                    UserId = user.Id
+                };
+                _context.CourrierHistories.Add(historiqueAction);
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"Tous les courriers signés du jour ({courriers.Count}) ont été archivés avec succès !";
+            return RedirectToAction(nameof(Dashboard));
         }
     }
 }

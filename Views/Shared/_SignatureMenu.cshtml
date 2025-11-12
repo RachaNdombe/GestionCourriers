@@ -1,0 +1,23 @@
+<div class="dropdown">
+    <button class="btn btn-outline-primary dropdown-toggle" type="button" id="signatureMenu" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-signature"></i> Signatures
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="signatureMenu">
+        <li>
+            <a class="dropdown-item" asp-controller="Signature" asp-action="Index">
+                <i class="fas fa-list"></i> Mes Signatures
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item" asp-controller="Signature" asp-action="Create">
+                <i class="fas fa-plus"></i> Nouvelle Signature
+            </a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+            <a class="dropdown-item" href="#">
+                <i class="fas fa-info-circle"></i> Aide Signatures
+            </a>
+        </li>
+    </ul>
+</div>
