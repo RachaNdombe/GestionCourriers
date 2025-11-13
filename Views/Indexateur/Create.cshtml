@@ -241,7 +241,12 @@
                     
                     <!-- Zone d'affichage du fichier -->
                     <div id="filePreviewArea" class="mt-3" style="display: none;">
-                        <h6>Aperçu du fichier :</h6>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0">Aperçu du fichier :</h6>
+                            <button type="button" class="btn btn-sm btn-outline-danger" id="btnClearPreview">
+                                <i class="bi bi-x-circle"></i> Effacer
+                            </button>
+                        </div>
                         <div id="filePreview" class="border rounded p-3 bg-light">
                             <div id="fileInfo" class="mb-2"></div>
                             <div id="fileContent"></div>
@@ -251,6 +256,14 @@
                     <div class="form-check mt-3">
                         <input class="form-check-input" type="checkbox" id="fileViewedCheckbox" />
                         <label class="form-check-label" for="fileViewedCheckbox">J'ai visualisé le fichier sélectionné</label>
+                    </div>
+                </div>
+
+                <!-- Section pour afficher les fichiers attachés -->
+                <div class="form-group mt-3">
+                    <label>Fichiers attachés</label>
+                    <div id="attachedFilesList" class="mt-2">
+                        <div class="text-muted">Aucun fichier attaché</div>
                     </div>
                 </div>
 
@@ -361,21 +374,54 @@
         const fileViewerInput = document.getElementById('fileViewerInput');
         const fileViewedCheckbox = document.getElementById('fileViewedCheckbox');
         const visualizedCheckbox = document.getElementById('visualizedCheckbox');
+        const attachedFilesList = document.getElementById('attachedFilesList');
+
+        // Fonction pour afficher un message d'erreur
+        function showError(message) {
+            console.error(message);
+            const fileContent = document.getElementById('fileContent');
+            fileContent.innerHTML = `<div class="alert alert-danger">${message}</div>`;
+        }
+
+        // Fonction pour afficher un message d'information
+        function showInfo(message) {
+            console.log(message);
+            const fileContent = document.getElementById('fileContent');
+            fileContent.innerHTML = `<div class="alert alert-info">${message}</div>`;
+        }
+
+        // Fonction pour afficher un message d'avertissement
+        function showWarning(message) {
+            console.warn(message);
+            const fileContent = document.getElementById('fileContent');
+            fileContent.innerHTML = `<div class="alert alert-warning">${message}</div>`;
+        }
 
         // Gestion de la sélection de fichier pour visualisation
         fileViewerInput.addEventListener('change', function (e) {
+            console.log('Fichier sélectionné pour visualisation');
             const files = Array.from(fileViewerInput.files || []);
             const filePreviewArea = document.getElementById('filePreviewArea');
             const fileInfo = document.getElementById('fileInfo');
             const fileContent = document.getElementById('fileContent');
             
             if (files.length === 0) {
+                console.log('Aucun fichier sélectionné');
                 filePreviewArea.style.display = 'none';
                 fileViewedCheckbox.checked = false;
                 return;
             }
 
             const file = files[0];
+            console.log('Fichier à visualiser:', file.name, file.type, file.size);
+            
+            // Vérifier la taille du fichier (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                showError('Le fichier est trop volumineux (max 10MB)');
+                filePreviewArea.style.display = 'block';
+                fileViewedCheckbox.checked = false;
+                return;
+            }
             
             // Afficher les informations du fichier
             fileInfo.innerHTML = `
@@ -385,50 +431,123 @@
             `;
             
             // Afficher le contenu selon le type de fichier
-            fileContent.innerHTML = '';
+            fileContent.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Chargement...</span></div><p>Chargement du fichier...</p></div>';
+            filePreviewArea.style.display = 'block';
             
             if (file.type.startsWith('image/')) {
+                console.log('Visualisation d\'image');
                 // Afficher l'image
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    fileContent.innerHTML = `<img src="${e.target.result}" class="img-fluid" style="max-height: 300px;" alt="Aperçu de l'image">`;
+                    fileContent.innerHTML = `
+                        <div class="text-center">
+                            <img src="${e.target.result}" class="img-fluid" style="max-height: 400px; max-width: 100%;" alt="Aperçu de l'image">
+                            <p class="mt-2 text-muted">Image: ${file.name}</p>
+                        </div>`;
+                    fileViewedCheckbox.checked = true;
+                };
+                reader.onerror = function(e) {
+                    console.error('Erreur lors de la lecture de l\'image:', e);
+                    showError('Erreur lors de la lecture de l\'image');
                 };
                 reader.readAsDataURL(file);
             } else if (file.type === 'application/pdf') {
+                console.log('Visualisation de PDF');
                 // Afficher un aperçu PDF
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     fileContent.innerHTML = `
                         <div class="alert alert-info">
-                            <i class="bi bi-file-earmark-pdf"></i> Fichier PDF sélectionné
-                            <br><small>Le fichier sera téléchargé lors de l'enregistrement</small>
+                            <i class="bi bi-file-earmark-pdf"></i> Fichier PDF sélectionné: ${file.name}
                         </div>
-                        <iframe src="${e.target.result}" width="100%" height="400" style="border: 1px solid #ddd;"></iframe>
+                        <iframe src="${e.target.result}" width="100%" height="500" style="border: 1px solid #ddd;"></iframe>
+                        <p class="mt-2 text-muted">Si le PDF ne s'affiche pas, votre navigateur peut ne pas supporter l'affichage direct des PDF.</p>
                     `;
+                    fileViewedCheckbox.checked = true;
+                };
+                reader.onerror = function(e) {
+                    console.error('Erreur lors de la lecture du PDF:', e);
+                    showError('Erreur lors de la lecture du PDF');
                 };
                 reader.readAsDataURL(file);
             } else if (file.type.includes('text/') || file.name.endsWith('.txt')) {
+                console.log('Visualisation de texte');
                 // Afficher le contenu texte
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    fileContent.innerHTML = `<pre class="bg-white p-2 border rounded">${e.target.result}</pre>`;
+                    const textContent = e.target.result;
+                    fileContent.innerHTML = `
+                        <div class="alert alert-success">
+                            <i class="bi bi-file-earmark-text"></i> Fichier texte: ${file.name}
+                        </div>
+                        <pre class="bg-white p-3 border rounded" style="max-height: 400px; overflow-y: auto;">${textContent}</pre>
+                    `;
+                    fileViewedCheckbox.checked = true;
+                };
+                reader.onerror = function(e) {
+                    console.error('Erreur lors de la lecture du texte:', e);
+                    showError('Erreur lors de la lecture du fichier texte');
                 };
                 reader.readAsText(file);
+            } else if (file.type.includes('word') || file.name.endsWith('.doc') || file.name.endsWith('.docx')) {
+                console.log('Visualisation de document Word');
+                showWarning(`
+                    <i class="bi bi-file-earmark-word"></i> Document Word sélectionné: ${file.name}
+                    <br><small>La visualisation des documents Word n'est pas disponible directement dans le navigateur</small>
+                    <br><small>Vous pouvez télécharger le fichier pour le visualiser avec Microsoft Word ou un lecteur compatible</small>
+                `);
+                fileViewedCheckbox.checked = true;
             } else {
+                console.log('Type de fichier non supporté:', file.type);
                 // Pour les autres types de fichiers
-                fileContent.innerHTML = `
-                    <div class="alert alert-warning">
-                        <i class="bi bi-file-earmark"></i> Type de fichier: ${file.type || 'Inconnu'}
-                        <br><small>Le fichier sera téléchargé lors de l'enregistrement</small>
-                    </div>
-                `;
+                showWarning(`
+                    <i class="bi bi-file-earmark"></i> Type de fichier: ${file.type || 'Inconnu'}
+                    <br><small>Prévisualisation non disponible pour ce type de fichier</small>
+                    <br><small>Nom du fichier: ${file.name}</small>
+                    <br><small>Vous pouvez télécharger le fichier pour le visualiser avec l'application appropriée</small>
+                `);
+                fileViewedCheckbox.checked = true;
+            }
+        });
+
+        // Fonction pour réinitialiser la visualisation
+        function resetFilePreview() {
+            const filePreviewArea = document.getElementById('filePreviewArea');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileContent = document.getElementById('fileContent');
+            const fileViewerInput = document.getElementById('fileViewerInput');
+            
+            filePreviewArea.style.display = 'none';
+            fileInfo.innerHTML = '';
+            fileContent.innerHTML = '';
+            fileViewedCheckbox.checked = false;
+            fileViewerInput.value = ''; // Réinitialiser l'input fichier
+        }
+
+        // Gestion du bouton Effacer
+        document.getElementById('btnClearPreview').addEventListener('click', function() {
+            resetFilePreview();
+        });
+
+        // Vérifier que tous les éléments existent avant d'ajouter les écouteurs
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initialisation de la visualisation des fichiers');
+            
+            // Vérifier que les éléments existent
+            const fileViewerInput = document.getElementById('fileViewerInput');
+            const btnClearPreview = document.getElementById('btnClearPreview');
+            
+            if (fileViewerInput) {
+                console.log('Input de visualisation trouvé');
+            } else {
+                console.error('Input de visualisation non trouvé');
             }
             
-            // Afficher la zone d'aperçu
-            filePreviewArea.style.display = 'block';
-            
-            // Cocher automatiquement la case de visualisation
-            fileViewedCheckbox.checked = true;
+            if (btnClearPreview) {
+                console.log('Bouton Effacer trouvé');
+            } else {
+                console.error('Bouton Effacer non trouvé');
+            }
         });
 
         // When files are selected for attachments

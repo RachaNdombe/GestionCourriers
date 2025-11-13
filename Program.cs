@@ -4,6 +4,13 @@ using JconsultGC.Models;
 using JconsultGC.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configuration du logging pour éviter les erreurs EventLog
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+builder.Logging.SetMinimumLevel(LogLevel.Information);
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<ProjetIdDbContext>(
